@@ -1,6 +1,7 @@
 from enum import Enum
 import selflocalize
 from particle import Particle, ParticlesWrapper
+from constants import Constants
 
 class RobotState(Enum):
     lost = 0
@@ -18,6 +19,7 @@ class State:
         self._moving = self.Moving()
         self._checking = self.Checking()
         self.current_state = self._lost
+        self.particles = ParticlesWrapper(Constants.World.num_particles, Constants.World.landmarks)
 
     class Lost:
         def __init__(self) -> None:
@@ -51,5 +53,4 @@ class State:
         return self._checking if self.state == RobotState.checking else None
 
     def update(self):
-        if self.lost:
-
+        pass
