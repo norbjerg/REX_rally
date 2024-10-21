@@ -64,8 +64,8 @@ CBLACK = (0, 0, 0)
 # Landmarks.
 # The robot knows the position of 2 landmarks. Their coordinates are in the unit centimeters [cm].
 landmarks = {
-    2: (0.0, 0.0),  # Coordinates for landmark 1
-    3: (180.0, 0.0)  # Coordinates for landmark 2
+    3: (0.0, 0.0),  # Coordinates for landmark 1
+    11: (180.0, 0.0)  # Coordinates for landmark 2
 }
 landmarkIDs = list(landmarks)
 goal = np.array([100.0, 100.])
@@ -280,7 +280,7 @@ try:
 
             # do the update
             particle.move_particle(parti, deltaXY[0], deltaXY[1], angular_velocity )
-        particle.add_uncertainty(particles, 2.5, 0.125)
+        particle.add_uncertainty(particles, 5, 0.125)
 
         # Fetch next frame
         colour = cam.get_next_frame()
