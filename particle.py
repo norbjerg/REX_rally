@@ -5,7 +5,6 @@ import numpy as np
 from math_utils import normal, polar_diff
 import random_numbers as rn
 
-# own imports:
 from copy import copy
 
 class Particle(object):

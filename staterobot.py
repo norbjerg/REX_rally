@@ -9,7 +9,7 @@ import numpy as np
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from command import Command
-from particle import Particle, estimate_pose
+from particle import Particle, ParticlesWrapper
 
 LOW_VARIANCE = 0.1
 MEDIUM_VARIANCE = 0.5
@@ -29,7 +29,7 @@ class VarianceState(Enum):
 class StateRobot:
     def __init__(self, arlo, particles):
         self.state = RobotState.is_checking
-        self.particles: list[Particle] = particles
+        self.particles: ParticlesWrapper = particles
         self.variance_state = VarianceState.no_variance
         self.variance = np.inf
         self.current_command: Optional[Command] = None
@@ -41,8 +41,8 @@ class StateRobot:
         self.start_grace_time: Optional[float] = None
 
     def set_variance(self):
-        mean_point = estimate_pose(self.particles)
-        self.variance = np.var([np.sqrt((p.getX() - mean_point.getX())**2+(p.getY() - mean_point.getY())**2) for p in self.particles]) / len(self.particles)
+        mean_point = self.particles.estimate_pose()
+        self.variance = np.var([np.sqrt((p.getX() - mean_point.getX())**2+(p.getY() - mean_point.getY())**2) for p in self.particles.particles]) / len(self.particles.particles)
         # self.variance = np.var([p.getWeight() for p in self.particles])
         if self.variance <= LOW_VARIANCE:
             self.variance_state = VarianceState.low_variance

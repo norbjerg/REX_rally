@@ -1,6 +1,6 @@
 from enum import Enum
 import selflocalize
-from particle import Particle, add_uncertainty, estimate_pose
+from particle import Particle, ParticlesWrapper
 
 class RobotState(Enum):
     lost = 0

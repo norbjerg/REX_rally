@@ -25,7 +25,7 @@ rng = random.default_rng()
 # Flags
 showGUI = True  # Whether or not to open GUI windows
 showPreview = False
-onRobot = True  # Whether or not we are running on the Arlo robot
+onRobot = False  # Whether or not we are running on the Arlo robot
 
 
 def isRunningOnArlo():
@@ -110,11 +110,11 @@ def draw_world(est_pose, particles, world):
 
     # Find largest weight
     max_weight = 0
-    for particle in particles:
+    for particle in particles.particles:
         max_weight = max(max_weight, particle.getWeight())
 
     # Draw particles
-    for particle in particles:
+    for particle in particles.particles:
         x = int(particle.getX() + offsetX)
         y = ymax - (int(particle.getY() + offsetY))
         colour = jet(particle.getWeight() / max_weight)
