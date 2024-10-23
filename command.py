@@ -24,7 +24,7 @@ FORWARD_SPEED = Constants.Robot.FORWARD_SPEED
 
 class Command(ABC):
     def __init__(self, robot):
-        self.robot = ControlWrapper(IS_ARLO)
+        self.robot = robot
 
         self.start_time = None  # None means not started
 
