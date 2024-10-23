@@ -26,6 +26,8 @@ class Constants:
         WHEEL_DIAMETER = 155  # mm
         WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * 3.14  # cm
         QUARTER_TURN_64 = 0.725  # sleep
+        FORWARD_SPEED = 100 / 2.5  # cm/s
+        ROTATIONAL_SPEED = np.deg2rad(360 / 7.3)  # rad/s
 
     class Sensor:
         MAX_SPEED = 100
