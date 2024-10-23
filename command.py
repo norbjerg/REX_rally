@@ -48,6 +48,7 @@ class Command(ABC):
             return
         if self.start_time is None:
             self.particles.move_particles(self.dist, self.angle)
+            self.particles.add_uncertainty(Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE)
             self.start_time = time.time()
             self.robot.go_diff(self.power, self.power, *self.mov_dirs)
             self.begun = True

@@ -12,6 +12,8 @@ except ImportError:
 
 
 onRobot = False
+
+
 def isRunningOnArlo():
     """Return True if we are running on Arlo, otherwise False.
     You can use this flag to switch the code from running on you laptop to Arlo - you need to do the programming here!
@@ -40,7 +42,7 @@ class Constants:
     class Robot:
         if "PICAM" in os.environ:
             INCLUDE = True
-        else: 
+        else:
             INCLUDE = False
         MAX_VOLT = 12
         MAX_RPM = 100
@@ -52,7 +54,10 @@ class Constants:
         WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * 3.14  # cm
         QUARTER_TURN_64 = 0.725  # sleep
         FORWARD_SPEED = 100 / 2.7  # cm/s
-        ROTATIONAL_SPEED = 0.85 # np.deg2rad(360 / 7.3)  # rad/s
+        ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
+        DISTANCE_NOISE = 5  # cm
+        ANGULAR_NOISE = 0.2  # rad
+        CTRL_RANGE = 20  # cm
 
     class Sensor:
         MAX_SPEED = 100
@@ -74,7 +79,7 @@ class Constants:
     class PID:
         if "PICAM" in os.environ:
             CAMERA_MODEL = "picam"
-        else: 
+        else:
             CAMERA_MODEL = "webcam"
         DOWNSCALE = 0
         SCREEN_RESOLUTION = (1640, 1232)
@@ -111,18 +116,26 @@ class Constants:
 
     class World:
         landmarks = {
-            2: (0.0, 0.0),
-            3: (180.0, 0.0)
+            1: (0.0, 0.0),
+            2: (0.0, 300.0),
+            3: (400.0, 0.0),
+            4: (400.0, 300.0),
         }
         landmarkIDs = list(landmarks)
-        goal = np.array([100.0, 100.])
+        goals = [np.array(pos) for id, pos in landmarks.items()]
         num_particles = 600
         running_on_arlo = "PICAM" in os.environ
         draw_particles = True
 
 
 if LocalConstants is not None:
-    for const_class in [Constants.Robot, Constants.Sensor, Constants.Obstacle, Constants.PID, Constants.PyPlot]:
+    for const_class in [
+        Constants.Robot,
+        Constants.Sensor,
+        Constants.Obstacle,
+        Constants.PID,
+        Constants.PyPlot,
+    ]:
         local_const_class = getattr(LocalConstants, const_class.__name__, None)
         if local_const_class is not None:
             for attr, value in const_class.__dict__.items():

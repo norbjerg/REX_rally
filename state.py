@@ -10,6 +10,7 @@ import info
 import particle
 from constants import Constants
 from particle import Particle, ParticlesWrapper
+import rrt
 
 
 class RobotState(Enum):
@@ -22,6 +23,7 @@ class State:
     def __init__(self) -> None:
         self.on_arlo = Constants.World.running_on_arlo
         self.landmarks = Constants.World.landmarks
+        self.landmarkIDs = Constants.World.landmarkIDs
         self.num_particles = Constants.World.num_particles
         self.show_preview = Constants.PID.ENABLE_PREVIEW
 
@@ -30,6 +32,8 @@ class State:
         self._cam: camera.Camera
         self.WIN_RF1 = "Robot view"
         self.arlo = command.ControlWrapper(self.on_arlo)
+        self.goals = Constants.World.goals
+        self.current_goal = self.goals[0]
 
         if self.on_arlo:
             self._cam = camera.Camera(0, robottype="arlo", useCaptureThread=True)
@@ -39,6 +43,7 @@ class State:
         self.info = info.Info()
 
         self.particles = particle.ParticlesWrapper(self.num_particles, self.landmarks)
+        self.obstacles = []
 
         self._lost = self.Lost(self)
         self._moving = self.Moving(self)
@@ -109,11 +114,10 @@ class State:
                     if dist < exist_dist:
                         measurements[objectID] = (dist, angle)
 
-            useful_measurements = set(measurements).intersection(set(self.outer_instance.landmarks))
+            useful_measurements = set(measurements).intersection(set(self.outer_instance.landmarkIDs))
+            obstacles = set(measurements).difference(set(self.outer_instance.landmarkIDs))
             useful_measurements_dict = {useful_key: measurements[useful_key] for useful_key in useful_measurements}
-            self.seen_landmarks.update(
-                useful_measurements_dict
-            )
+            self.seen_landmarks.update(useful_measurements_dict)
             if len(useful_measurements) > 0:
                 self.outer_instance.particles.update(useful_measurements_dict)
             if len(self.seen_landmarks) >= 2:
@@ -127,12 +131,18 @@ class State:
         def __init__(self, outer_instance: "State") -> None:
             self.cam: camera.Camera = outer_instance.cam
             self.outer_instance = outer_instance
+            self.initialize()
 
         def initialize(self):
-            pass
+            self.goal = self.outer_instance.current_goal
 
         def update(self):
-            pass
+            est_pos = self.outer_instance.particles.estimate_pose()
+            map_ = rrt.GridOccupancyMap()
+            route_planner = rrt.RRT(start=est_pos, goal=self.goal, map=map_)
+            route = route_planner.planning()
+            if route is not None:
+                self.outer_instance.set_state(RobotState.moving)
 
     class Moving:
         def __init__(self, outer_instance: "State") -> None:
@@ -175,7 +185,12 @@ if __name__ == "__main__":
             if action == ord("q"):
                 break
             state.update()
-    except KeyboardInterrupt:
+
+    finally:
+        # Make sure to clean up even if an exception occurred
+
+        # Close all windows
         cv2.destroyAllWindows()
-        print("Exiting program")
-        exit(0)
+
+        # Clean-up capture thread
+        state.cam.terminateCaptureThread()

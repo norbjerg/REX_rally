@@ -44,7 +44,7 @@ landmark_colors = [CRED, CGREEN]  # Colors used when drawing the landmarks
 world = Constants.World
 landmarks = world.landmarks
 landmarkIDs = world.landmarkIDs
-goal = world.goal
+goal = world.goals
 
 
 class Info:
@@ -99,7 +99,7 @@ class Info:
             lm = (int(landmarks[ID][0] + offsetX), int(ymax - (landmarks[ID][1] + offsetY)))
             cv2.circle(self.world, lm, 5, landmark_colors[i], 2)
 
-        if not est_pose is None:
+        if est_pose is not None:
             # Draw estimated robot pose
             a = (int(est_pose.getX()) + offsetX, ymax - (int(est_pose.getY()) + offsetY))
             b = (
