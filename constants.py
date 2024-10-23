@@ -81,6 +81,16 @@ class Constants:
         ]
         interactive_backend = "Qt5Agg"
 
+    class World:
+        landmarks = {
+            2: (0.0, 0.0),
+            3: (180.0, 0.0)
+        }
+        landmarkIDs = list(landmarks)
+        goal = np.array([100.0, 100.])
+        num_particles = 1000
+
+
 if LocalConstants is not None:
     for const_class in [Constants.Robot, Constants.Sensor, Constants.Obstacle, Constants.PID, Constants.PyPlot]:
         local_const_class = getattr(LocalConstants, const_class.__name__, None)
