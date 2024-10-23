@@ -17,16 +17,6 @@ else:
     IS_ARLO = False
 
 
-def get_straight_p64_cm_s_velocity():
-    time_1m = 2.5
-    return 100 / time_1m
-
-
-def get_rotate_p32_rad_s_velocity():
-    time_360deg = 7.3
-    return np.deg2rad(360 / time_360deg)
-
-
 ROTATIONAL_SPEED = Constants.Robot.ROTATIONAL_SPEED
 FORWARD_SPEED = Constants.Robot.FORWARD_SPEED
 
