@@ -111,7 +111,10 @@ class Straight(Command):
         self.mov_dirs = (1, 1)
         self.power = 64
 
-        self.command_time = distance / FORWARD_SPEED
+        if distance < 0:
+            self.mov_dirs = self.mov_dirs[1], self.mov_dirs[0]
+
+        self.command_time = abs(distance) / FORWARD_SPEED
 
 
 
@@ -129,6 +132,8 @@ if __name__ == "__main__":
     queue: list[Command] = []
     queue.append(Rotate(arlo, np.deg2rad(90)))
     queue.append(Straight(arlo, 100))
+    queue.append(Straight(arlo, -100))
+    queue.append(Rotate(arlo, -np.deg2rad(90)))
     
     command = queue.pop(0)
     command.run_command()
