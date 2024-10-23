@@ -7,6 +7,7 @@ import numpy as np
 import camera
 import command
 import info
+import math_utils
 import particle
 from constants import Constants
 from particle import Particle, ParticlesWrapper
@@ -133,16 +134,31 @@ class State:
             self.outer_instance = outer_instance
             self.initialize()
 
+        
+
         def initialize(self):
             self.goal = self.outer_instance.current_goal
 
         def update(self):
-            est_pos = self.outer_instance.particles.estimate_pose()
+
+            def gen_command(Nodes):
+                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+                for n in Nodes:
+                    dist, angle = math_utils.polar_diff(self.outer_instance.est_pos.getPos, self.outer_instance.est_pos.getTheta,np.array(n.pos))
+                    yield command.Rotate(self.outer_instance.arlo, angle, self.outer_instance.particles)
+                    yield command.Straight(self.outer_instance.arlo, dist, self.outer_instance.particles)
+
+
+            self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
             map_ = rrt.GridOccupancyMap()
-            route_planner = rrt.RRT(start=est_pos, goal=self.goal, map=map_)
+            route_planner = rrt.RRT(start=self.est_pos, goal=self.goal, map=map_)
             route = route_planner.planning()
-            if route is not None:
+            
+            if self.outer_instance.route is not None:
                 self.outer_instance.set_state(RobotState.moving)
+            else:
+                self.outer_instance.route = list(gen_command(route))
+
 
     class Moving:
         def __init__(self, outer_instance: "State") -> None:
@@ -150,10 +166,16 @@ class State:
             self.outer_instance = outer_instance
 
         def initialize(self):
-            pass
+            self.current_command = self.route.pop()
+            self.current_command.run_command()
 
         def update(self):
-            pass
+            if self.current_command.finished:
+                self.current_command = self.route.pop()
+                self.outer_instance.set_state(RobotState.checking)
+            else:
+                self.current_command.run_command()
+
 
     def set_state(self, state: RobotState):
         self.state = state

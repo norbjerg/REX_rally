@@ -25,6 +25,9 @@ class Particle(object):
 
     def getY(self):
         return self.y
+    
+    def getPos(self):
+        return np.array((self.x, self.y))
 
     def getTheta(self):
         return self.theta
