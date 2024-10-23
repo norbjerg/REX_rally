@@ -11,6 +11,31 @@ except ImportError:
     LocalConstants = None
 
 
+onRobot = False
+def isRunningOnArlo():
+    """Return True if we are running on Arlo, otherwise False.
+    You can use this flag to switch the code from running on you laptop to Arlo - you need to do the programming here!
+    """
+    return onRobot
+
+
+if isRunningOnArlo():
+    # XXX: You need to change this path to point to where your robot.py file is located
+    sys.path.append("../../../../Arlo/python")
+
+
+try:
+    if isRunningOnArlo():
+        import robot
+
+        onRobot = True
+    else:
+        onRobot = False
+except ImportError:
+    print("selflocalize.py: robot module not present - forcing not running on Arlo!")
+    onRobot = False
+
+
 class Constants:
     class Robot:
         if "PICAM" in os.environ:
@@ -27,7 +52,7 @@ class Constants:
         WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * 3.14  # cm
         QUARTER_TURN_64 = 0.725  # sleep
         FORWARD_SPEED = 100 / 2.7  # cm/s
-        ROTATIONAL_SPEED = 0.92 # np.deg2rad(360 / 7.3)  # rad/s
+        ROTATIONAL_SPEED = 0.91 # np.deg2rad(360 / 7.3)  # rad/s
 
     class Sensor:
         MAX_SPEED = 100
@@ -91,6 +116,7 @@ class Constants:
         landmarkIDs = list(landmarks)
         goal = np.array([100.0, 100.])
         num_particles = 1000
+        running_on_arlo = isRunningOnArlo()
 
 
 if LocalConstants is not None:

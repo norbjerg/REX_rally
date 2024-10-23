@@ -14,6 +14,7 @@ if "PICAM" in os.environ:
 
     IS_ARLO = True
 else:
+    robot = object
     IS_ARLO = False
 
 
@@ -23,7 +24,7 @@ FORWARD_SPEED = Constants.Robot.FORWARD_SPEED
 
 class Command(ABC):
     def __init__(self, robot):
-        self.robot = ControlWrapper(robot, IS_ARLO)
+        self.robot = ControlWrapper(IS_ARLO)
 
         self.start_time = None  # None means not started
 
@@ -52,8 +53,8 @@ class Command(ABC):
 
 # wraps robot for the purpose of interchangability with debug/Arlo
 class ControlWrapper:
-    def __init__(self, robot, isArlo=False):
-        self.robot = robot
+    def __init__(self, isArlo=False):
+        self.robot = robot()
         self.isArlo = isArlo
 
     def go_diff(self, l, r, L, R):
