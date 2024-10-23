@@ -131,4 +131,4 @@ if __name__ == "__main__":
         command.run_command()
         while not command.finished:
             command.run_command()
-        print("Commands finished")
+    print("Commands finished")
