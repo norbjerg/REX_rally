@@ -10,11 +10,11 @@ if "PICAM" in os.environ:
     import sys
 
     sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-    import robot
+    from robot import Robot
 
     IS_ARLO = True
 else:
-    robot = object
+    Robot = object
     IS_ARLO = False
 
 
@@ -54,7 +54,7 @@ class Command(ABC):
 # wraps robot for the purpose of interchangability with debug/Arlo
 class ControlWrapper:
     def __init__(self, isArlo=False):
-        self.robot = robot()
+        self.robot = Robot()
         self.isArlo = isArlo
 
     def go_diff(self, l, r, L, R):
@@ -119,7 +119,7 @@ class Wait(Command):
 # testing code
 if __name__ == "__main__":
     # arlo = None
-    arlo = robot.Robot()
+    arlo = ControlWrapper(IS_ARLO)
     queue: list[Command] = []
     queue.append(Rotate(arlo, np.deg2rad(90)))
     queue.append(Straight(arlo, 100))
