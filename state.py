@@ -31,9 +31,15 @@ class State:
     class Moving:
         def __init__(self) -> None:
             pass
+        
+        def update(self):
+            pass
 
     class Checking:
         def __init__(self) -> None:
+            pass
+
+        def update(self):
             pass
 
     def set_state(self, state: RobotState):
@@ -53,4 +59,4 @@ class State:
         return self._checking if self.state == RobotState.checking else None
 
     def update(self):
-        pass
+        self.current_state.update()
