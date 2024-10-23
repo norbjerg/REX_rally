@@ -5,17 +5,15 @@ from abc import ABC
 import numpy as np
 from constants import Constants
 
-if "PICAM" in os.environ:
+if Constants.World.running_on_arlo:
     import os
     import sys
 
     sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
     from robot import Robot
 
-    IS_ARLO = True
 else:
     Robot = object
-    IS_ARLO = False
 
 
 ROTATIONAL_SPEED = Constants.Robot.ROTATIONAL_SPEED

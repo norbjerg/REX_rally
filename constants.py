@@ -116,7 +116,7 @@ class Constants:
         landmarkIDs = list(landmarks)
         goal = np.array([100.0, 100.])
         num_particles = 1000
-        running_on_arlo = isRunningOnArlo()
+        running_on_arlo = "PICAM" in os.environ
 
 
 if LocalConstants is not None:
