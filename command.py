@@ -4,6 +4,7 @@ from abc import ABC
 
 import numpy as np
 from constants import Constants
+from particle import Particle, ParticlesWrapper
 
 if Constants.World.running_on_arlo:
     import os
@@ -15,14 +16,18 @@ if Constants.World.running_on_arlo:
 else:
     Robot = object
 
-
+IS_ARLO = Constants.World.running_on_arlo
 ROTATIONAL_SPEED = Constants.Robot.ROTATIONAL_SPEED
 FORWARD_SPEED = Constants.Robot.FORWARD_SPEED
 
 
 class Command(ABC):
-    def __init__(self, robot):
+    def __init__(self, robot, particles=None):
         self.robot = robot
+        if particles is None:
+            ParticlesWrapper(0, [])
+        else:
+            self.particles: ParticlesWrapper = particles
 
         self.start_time = None  # None means not started
 
@@ -31,6 +36,8 @@ class Command(ABC):
         self.finished = False
         self.mov_dirs = (0, 0)
         self.power = 0
+        self.angle = 0
+        self.dist = 0
 
     def run_command(self):
         if self.finished is True:
@@ -40,6 +47,7 @@ class Command(ABC):
             self.begun = True
             return
         if self.start_time is None:
+            self.particles.move_particles(self.dist, self.angle)
             self.start_time = time.time()
             self.robot.go_diff(self.power, self.power, *self.mov_dirs)
             self.begun = True
@@ -70,8 +78,8 @@ class ControlWrapper:
 
 
 class Rotate(Command):
-    def __init__(self, robot, delta_angle) -> None:
-        super().__init__(robot)
+    def __init__(self, robot, delta_angle, particles=None) -> None:
+        super().__init__(robot, particles)
         self.start_time = None
         self.finished = False
         self.mov_dirs = (1, 0)
@@ -87,6 +95,7 @@ class Rotate(Command):
         elif angle < -np.pi:
             angle += np.pi
             angle = -angle
+        self.angle = angle
 
         self.command_time = abs(angle) / ROTATIONAL_SPEED
 
@@ -94,8 +103,8 @@ class Rotate(Command):
 
 
 class Straight(Command):
-    def __init__(self, robot, distance) -> None:
-        super().__init__(robot)
+    def __init__(self, robot, distance, particles=None) -> None:
+        super().__init__(robot, particles)
 
         self.mov_dirs = (1, 1)
         self.power = 64
@@ -103,13 +112,14 @@ class Straight(Command):
         if distance < 0:
             self.mov_dirs = (0, 0)
 
+        self.dist = distance
         self.command_time = abs(distance) / FORWARD_SPEED
 
 
 
 class Wait(Command):
-    def __init__(self, robot, grace_time) -> None:
-        super().__init__(robot)
+    def __init__(self, robot, grace_time, particles=None) -> None:
+        super().__init__(robot, particles)
         self.command_time = grace_time
         self.power = 0
 

@@ -95,7 +95,8 @@ class Constants:
             SCREEN_RESOLUTION[0] // (2**PREVIEW_DOWNSCALE),
             SCREEN_RESOLUTION[1] // (2**PREVIEW_DOWNSCALE),
         )
-        ENABLE_PREVIEW = 0
+        ENABLE_PREVIEW = 1
+        ENABLE_GUI = 1
         CAMERA_FPS = 24
 
     class PyPlot:
@@ -117,6 +118,7 @@ class Constants:
         goal = np.array([100.0, 100.])
         num_particles = 1000
         running_on_arlo = "PICAM" in os.environ
+        draw_particles = True
 
 
 if LocalConstants is not None:
