@@ -135,11 +135,9 @@ if __name__ == "__main__":
     queue.append(Straight(arlo, -100))
     queue.append(Rotate(arlo, -np.deg2rad(90)))
     
-    command = queue.pop(0)
-    command.run_command()
-    while not command.finished:
+    while len(queue) > 0:
+        command = queue.pop(0)
         command.run_command()
-    command = queue.pop(0)
-    command.run_command()
-    while not command.finished:
-        command.run_command()
+        while not command.finished:
+            command.run_command()
+        print("Commands finished")
