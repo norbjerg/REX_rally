@@ -132,6 +132,7 @@ if __name__ == "__main__":
     queue: list[Command] = []
     queue.append(Rotate(arlo, np.deg2rad(90)))
     queue.append(Straight(arlo, 100))
+    queue.append(Wait(arlo, 5))
     queue.append(Straight(arlo, -100))
     queue.append(Rotate(arlo, -np.deg2rad(90)))
     
