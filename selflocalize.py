@@ -24,7 +24,7 @@ rng = random.default_rng()
 
 # Flags
 showGUI = True  # Whether or not to open GUI windows
-showPreview = False
+showPreview = True
 onRobot = False  # Whether or not we are running on the Arlo robot
 
 
