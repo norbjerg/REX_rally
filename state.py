@@ -45,11 +45,11 @@ class State:
         self._checking = self.Checking(self)
         self.current_state = self._lost
 
-    def show_gui(
-        self,
-    ):
+    def show_gui(self):
         self.next_frame()
-        self.info.draw_world(self.particles)
+        est_pose = self.particles.estimate_pose()
+
+        self.info.draw_world(self.particles, est_pose)
         self.info.show_frame(self.colour)
 
     @property
@@ -110,11 +110,12 @@ class State:
                         measurements[objectID] = (dist, angle)
 
             useful_measurements = set(measurements).intersection(set(self.outer_instance.landmarks))
+            useful_measurements_dict = {useful_key: measurements[useful_key] for useful_key in useful_measurements}
             self.seen_landmarks.update(
-                {useful_key: measurements[useful_key] for useful_key in useful_measurements}
+                useful_measurements_dict
             )
             if len(useful_measurements) > 0:
-                self.outer_instance.particles.update(useful_measurements)
+                self.outer_instance.particles.update(useful_measurements_dict)
             if len(self.seen_landmarks) >= 2:
                 self.outer_instance.set_state(RobotState.checking)
                 return
@@ -170,6 +171,9 @@ if __name__ == "__main__":
     state = State()
     try:
         while True:
+            action = cv2.waitKey(10)
+            if action == ord("q"):
+                break
             state.update()
     except KeyboardInterrupt:
         cv2.destroyAllWindows()

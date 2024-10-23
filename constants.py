@@ -116,7 +116,7 @@ class Constants:
         }
         landmarkIDs = list(landmarks)
         goal = np.array([100.0, 100.])
-        num_particles = 1000
+        num_particles = 600
         running_on_arlo = "PICAM" in os.environ
         draw_particles = True
 

@@ -278,7 +278,7 @@ if __name__ == "__main__":
 
             if showGUI:
                 # Draw map
-                info.draw_world(est_pose, particles)
+                info.draw_world(particles, est_pose)
 
                 info.show_frame(colour)
 

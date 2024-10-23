@@ -111,8 +111,9 @@ class Info:
 
     def show_frame(self, colour):
         # Show frame
-        if Constants.PID.ENABLE_PREVIEW:
-            cv2.imshow(self.WIN_RF1, colour)
+        if Constants.PID.ENABLE_GUI:
+            if Constants.PID.ENABLE_PREVIEW:
+                cv2.imshow(self.WIN_RF1, colour)
 
-        # Show world
-        cv2.imshow(self.WIN_World, self.world)
+            # Show world
+            cv2.imshow(self.WIN_World, self.world)
