@@ -112,7 +112,7 @@ class Straight(Command):
         self.power = 64
 
         if distance < 0:
-            self.mov_dirs = self.mov_dirs[1], self.mov_dirs[0]
+            self.mov_dirs = (0, 0)
 
         self.command_time = abs(distance) / FORWARD_SPEED
 
