@@ -1,5 +1,6 @@
 import time
 from enum import Enum
+from typing import Optional
 
 import cv2
 import numpy as np
@@ -9,9 +10,9 @@ import command
 import info
 import math_utils
 import particle
+import rrt
 from constants import Constants
 from particle import Particle, ParticlesWrapper
-import rrt
 
 
 class RobotState(Enum):
@@ -44,7 +45,9 @@ class State:
         self.info = info.Info()
 
         self.particles = particle.ParticlesWrapper(self.num_particles, self.landmarks)
-        self.obstacles = []
+        self.obstacles = dict()
+        self.est_pos: Optional[Particle] = None
+        self.route: Optional[list[command.Command]] = None
 
         self._lost = self.Lost(self)
         self._moving = self.Moving(self)
@@ -98,12 +101,12 @@ class State:
             self.seen_landmarks = dict()
 
         def update(self):
-            self.start_time = time.time()  # TODO: delete this
-
             # Detect objects
             objectIDs, dists, angles = self.cam.detect_aruco_objects(self.outer_instance.colour)
 
             measurements = dict()
+
+            # Pick the closest marker
             if (
                 not isinstance(objectIDs, type(None))
                 and not isinstance(dists, type(None))
@@ -115,17 +118,33 @@ class State:
                     if dist < exist_dist:
                         measurements[objectID] = (dist, angle)
 
-            useful_measurements = set(measurements).intersection(set(self.outer_instance.landmarkIDs))
-            obstacles = set(measurements).difference(set(self.outer_instance.landmarkIDs))
-            useful_measurements_dict = {useful_key: measurements[useful_key] for useful_key in useful_measurements}
+            useful_measurements = set(measurements).intersection(
+                set(self.outer_instance.landmarkIDs)
+            )
+            useful_measurements_dict = {
+                useful_key: measurements[useful_key] for useful_key in useful_measurements
+            }
             self.seen_landmarks.update(useful_measurements_dict)
-            if len(useful_measurements) > 0:
+
+            self.outer_instance.obstacles.update(  # TODO: find a way to get obstacles in world coordinates
+                {
+                    obstacle_key: measurements[obstacle_key]
+                    for obstacle_key in set(measurements).difference(
+                        set(self.outer_instance.landmarkIDs)
+                    )
+                }
+            )
+
+            if len(useful_measurements) > 0:  # perform resampling on the particles
                 self.outer_instance.particles.update(useful_measurements_dict)
-            if len(self.seen_landmarks) >= 2:
+
+            if len(self.seen_landmarks) >= 2:  # Go to checking when possible to localize
                 self.outer_instance.set_state(RobotState.checking)
                 return
+
             if self.current_command.finished:
                 self.current_command = next(self.queue)
+
             self.current_command.run_command()
 
     class Checking:
@@ -134,31 +153,34 @@ class State:
             self.outer_instance = outer_instance
             self.initialize()
 
-        
-
         def initialize(self):
             self.goal = self.outer_instance.current_goal
 
         def update(self):
-
             def gen_command(Nodes):
                 self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
                 for n in Nodes:
-                    dist, angle = math_utils.polar_diff(self.outer_instance.est_pos.getPos, self.outer_instance.est_pos.getTheta,np.array(n.pos))
-                    yield command.Rotate(self.outer_instance.arlo, angle, self.outer_instance.particles)
-                    yield command.Straight(self.outer_instance.arlo, dist, self.outer_instance.particles)
-
+                    dist, angle = math_utils.polar_diff(
+                        self.outer_instance.est_pos.getPos,
+                        self.outer_instance.est_pos.getTheta,
+                        np.array(n.pos),
+                    )
+                    yield command.Rotate(
+                        self.outer_instance.arlo, angle, self.outer_instance.particles
+                    )
+                    yield command.Straight(
+                        self.outer_instance.arlo, dist, self.outer_instance.particles
+                    )
 
             self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
             map_ = rrt.GridOccupancyMap()
-            route_planner = rrt.RRT(start=self.est_pos, goal=self.goal, map=map_)
+            route_planner = rrt.RRT(start=self.outer_instance.est_pos, goal=self.goal, map=map_)
             route = route_planner.planning()
-            
+
             if self.outer_instance.route is not None:
                 self.outer_instance.set_state(RobotState.moving)
             else:
                 self.outer_instance.route = list(gen_command(route))
-
 
     class Moving:
         def __init__(self, outer_instance: "State") -> None:
@@ -166,16 +188,15 @@ class State:
             self.outer_instance = outer_instance
 
         def initialize(self):
-            self.current_command = self.route.pop()
+            self.current_command = self.outer_instance.route.pop()  # route should not be None at this point
             self.current_command.run_command()
 
         def update(self):
             if self.current_command.finished:
-                self.current_command = self.route.pop()
+                self.current_command = self.outer_instance.route.pop()
                 self.outer_instance.set_state(RobotState.checking)
             else:
                 self.current_command.run_command()
-
 
     def set_state(self, state: RobotState):
         self.state = state
