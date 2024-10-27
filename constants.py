@@ -57,7 +57,7 @@ class Constants:
         ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
         DISTANCE_NOISE = 5  # cm
         ANGULAR_NOISE = 0.2  # rad
-        CTRL_RANGE = 20  # cm
+        CTRL_RANGE = [-20,20]  # cm
 
     class Sensor:
         MAX_SPEED = 100

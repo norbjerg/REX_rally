@@ -36,7 +36,16 @@ CMAGENTA = (255, 0, 255)
 CWHITE = (255, 255, 255)
 CBLACK = (0, 0, 0)
 
-landmark_colors = [CRED, CGREEN]  # Colors used when drawing the landmarks
+landmark_colors = [
+    CRED,
+    CGREEN,
+    CBLUE,
+    CCYAN,
+    CYELLOW,
+    CMAGENTA,
+    CWHITE,
+    CBLACK,
+]  # Colors used when drawing the landmarks
 
 
 # Landmarks.

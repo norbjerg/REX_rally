@@ -174,11 +174,13 @@ class State:
 
             self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
             map_ = rrt.GridOccupancyMap()
-            route_planner = rrt.RRT(start=self.outer_instance.est_pos, goal=self.goal, map=map_)
+            route_planner = rrt.RRT(start=self.outer_instance.est_pos.getPos(), goal=self.goal, map=map_)
             route = route_planner.planning()
 
             if self.outer_instance.route is not None:
                 self.outer_instance.set_state(RobotState.moving)
+            elif route is None:
+                self.outer_instance.set_state(RobotState.lost)
             else:
                 self.outer_instance.route = list(gen_command(route))
 
