@@ -162,8 +162,8 @@ class State:
                 self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
                 for n in Nodes:
                     dist, angle = math_utils.polar_diff(
-                        self.outer_instance.est_pos.getPos,
-                        self.outer_instance.est_pos.getTheta,
+                        self.outer_instance.est_pos.getPos(),
+                        self.outer_instance.est_pos.getTheta(),
                         np.array(n.pos) if not isinstance(n, np.ndarray) else n,
                     )
                     yield command.Rotate(
