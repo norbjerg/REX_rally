@@ -74,7 +74,7 @@ class Constants:
         SHAPE = [145, 145]  # in mm
         SHAPE_MIN = 220  # in mm
         # SHAPE_MAX = 250  # in mm
-        SHAPE_MAX = 150  # in mm
+        SHAPE_MAX = 100  # in mm
         SHAPE_RADIUS = SHAPE_MAX / 2
         SHAPE_RADIUS_CM = SHAPE_RADIUS / 10
 
@@ -105,7 +105,7 @@ class Constants:
         ENABLE_PREVIEW = 0
         ENABLE_GUI = 0
         CAMERA_FPS = 24
-        DRAW_PATH_BLOCKING = 0
+        DRAW_PATH_BLOCKING = 1
 
     class PyPlot:
         valid_interactive_backends = [
