@@ -74,7 +74,7 @@ class Constants:
         SHAPE = [145, 145]  # in mm
         SHAPE_MIN = 220  # in mm
         # SHAPE_MAX = 250  # in mm
-        SHAPE_MAX = 100  # in mm
+        SHAPE_MAX = 150  # in mm
         SHAPE_RADIUS = SHAPE_MAX / 2
 
     class PID:
