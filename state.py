@@ -87,6 +87,7 @@ class State:
             self.initialize()
 
         def initialize(self) -> None:
+            print("lost")
             def gen_command():
                 while True:
                     yield command.Wait(self.arlo, 2, self.outer_instance.particles)
@@ -155,6 +156,7 @@ class State:
             self.initialize()
 
         def initialize(self):
+            print("checking")
             self.goal = self.outer_instance.current_goal
 
         def update(self):
@@ -169,9 +171,13 @@ class State:
                     yield command.Rotate(
                         self.outer_instance.arlo, angle, self.outer_instance.particles
                     )
-                    yield command.Straight(
-                        self.outer_instance.arlo, dist, self.outer_instance.particles
-                    )
+                    for _ in range(4):
+                        yield command.Straight(
+                            self.outer_instance.arlo, dist / 4, self.outer_instance.particles
+                        )
+                        yield command.Wait(
+                            self.outer_instance.arlo, 0.5, self.outer_instance.particles
+                        )
 
             self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
             est_pos = self.outer_instance.est_pos
@@ -213,6 +219,7 @@ class State:
             self.outer_instance = outer_instance
 
         def initialize(self):
+            print("moving")
             self.current_command = (
                 self.outer_instance.route.pop()
             )  # route should not be None at this point
