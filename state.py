@@ -173,13 +173,9 @@ class State:
                     yield command.Rotate(
                         self.outer_instance.arlo, angle, self.outer_instance.particles
                     )
-                    for _ in range(4):
-                        yield command.Straight(
-                            self.outer_instance.arlo, dist / 4, self.outer_instance.particles
-                        )
-                        yield command.Wait(
-                            self.outer_instance.arlo, 0.1, self.outer_instance.particles
-                        )
+                    yield command.Straight(
+                        self.outer_instance.arlo, dist / 4, self.outer_instance.particles
+                    )
 
             self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
             est_pos = self.outer_instance.est_pos
@@ -188,7 +184,7 @@ class State:
             )
             local_goal_pos = est_pos.getPos() - self.goal + offset_vec
 
-            if self.outer_instance.route is not None:
+            if self.outer_instance.route is not None and self.outer_instance.route:
                 self.outer_instance.set_state(RobotState.moving)
             else:
                 print("found route")
