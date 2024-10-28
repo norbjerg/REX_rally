@@ -23,7 +23,7 @@ FORWARD_SPEED = Constants.Robot.FORWARD_SPEED
 
 class Command(ABC):
     def __init__(self, robot, particles=None):
-        self.robot = robot
+        self.robot: ControlWrapper = robot
         if particles is None:
             ParticlesWrapper(0, [])
         else:
@@ -85,7 +85,7 @@ class ControlWrapper:
         if self.isArlo:
             return (self.robot.read_left_ping_sensor(), self.robot.read_front_ping_sensor(), self.robot.read_right_ping_sensor())
         else:
-            return (0,0,0,0)
+            return (0,0,0)
 
 
 # TODO: Make command abstract + implement angle handling from calibrate.py
