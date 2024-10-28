@@ -38,13 +38,17 @@ class Command(ABC):
         self.power = 0
         self.angle = 0
         self.dist = 0
+        self.avoidance_mode = False
+        self.sonars = None
+
 
     def run_command(self):
         if self.robot.isArlo and self.dist > 0 and not self.finished:
             left, front, right = self.robot.read_sonars()
             if front < 10:
                 self.robot.stop()
-                self.finished = True
+                self.avoidance_mode = True
+                self.sonars = (left, front, right)
                 return
         
         if self.finished is True:
@@ -63,6 +67,8 @@ class Command(ABC):
             self.robot.stop()
             self.finished = True
 
+    def check_sensors(self):
+        self.sonars = self.robot.read_sonars()
 
 
 # wraps robot for the purpose of interchangability with debug/Arlo

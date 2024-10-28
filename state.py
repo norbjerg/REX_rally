@@ -20,6 +20,7 @@ class RobotState(Enum):
     lost = 0
     moving = 1
     checking = 2
+    avoidance = 3
 
 
 class State:
@@ -52,6 +53,7 @@ class State:
         self._lost = self.Lost(self)
         self._moving = self.Moving(self)
         self._checking = self.Checking(self)
+        self._avoidance = self.Avoidance(self)
         self.current_state = self._lost
 
     def show_gui(self):
@@ -160,13 +162,13 @@ class State:
             self.goal = self.outer_instance.goals[0]
 
         def update(self):
-            def gen_command(Nodes):
+            def gen_command(positions):
                 self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
-                for n in Nodes:
+                for position in positions:
                     dist, angle = math_utils.polar_diff(
                         self.outer_instance.est_pos.getPos(),
                         self.outer_instance.est_pos.getTheta(),
-                        np.array(n.pos) if not isinstance(n, np.ndarray) else n,
+                        position,
                     )
                     yield command.Rotate(
                         self.outer_instance.arlo, angle, self.outer_instance.particles
@@ -185,33 +187,13 @@ class State:
                 Constants.Obstacle.SHAPE_RADIUS_CM + 20
             )
             local_goal_pos = est_pos.getPos() - self.goal + offset_vec
-            # local_goal_pos = np.array(
-            #     (est_pos.getX() - self.goal[0], est_pos.getY() - self.goal[1])
-            # )
-
-            map_ = rrt.GridOccupancyMap()
-
-            map_.populate(self.outer_instance.obstacles)
-
-            route_planner = rrt.RRT(start=np.array((0, 0)), goal=local_goal_pos, map=map_)
-            route = route_planner.planning()
 
             if self.outer_instance.route is not None:
                 self.outer_instance.set_state(RobotState.moving)
-            elif route is None:
-                print("Could not find path")
-                self.outer_instance.set_state(RobotState.lost)
             else:
                 print("found route")
 
-                if Constants.PID.DRAW_PATH_BLOCKING:
-                    route_planner.draw_graph()
-                    plt.plot([x for (x, y) in route], [y for (x, y) in route], "-r")
-                    plt.grid(True)
-                    plt.pause(0.01)  # Need for Mac
-                    plt.show()
-
-                self.outer_instance.route = list(gen_command(route))
+                self.outer_instance.route = list(gen_command([local_goal_pos]))
 
     class Moving:
         def __init__(self, outer_instance: "State") -> None:
@@ -229,16 +211,60 @@ class State:
             if len(self.outer_instance.route) == 0:
                 self.outer_instance.goals.pop(0)
                 self.outer_instance.set_state(RobotState.lost)
+            elif self.current_command.avoidance_mode:
+                self.outer_instance.set_state(
+                    RobotState.avoidance, sonars=self.current_command.sonars
+                )
             elif self.current_command.finished:
                 self.current_command = self.outer_instance.route.pop()
                 self.outer_instance.set_state(RobotState.checking)
             else:
                 self.current_command.run_command()
 
-    def set_state(self, state: RobotState):
+    class Avoidance:
+        def __init__(self, outer_instance: "State") -> None:
+            self.cam: camera.Camera = outer_instance.cam
+            self.outer_instance = outer_instance
+            self.initialize((0, 0, 0))
+
+        def initialize(self, sonars):
+            print("avoidance")
+            self.free_threshold = 50
+            self.sonars = sonars
+            self.max_var_backwards = 50
+            self.state_index = 0
+            # 0: mandatory backwards (30 cm)
+            # 1: variable backwards
+            # 2: right turn (45 deg)
+            # 3: move forward mandatory backwards distance
+            # 4: left turn same angle as 2.
+            self.commands = [
+                command.Straight(self.outer_instance.arlo, -30, self.outer_instance.particles),
+                command.Straight(
+                    self.outer_instance.arlo, -self.max_var_backwards, self.outer_instance.particles
+                ),
+                command.Rotate(self.outer_instance.arlo, np.pi / 4, self.outer_instance.particles),
+                command.Straight(self.outer_instance.arlo, 30, self.outer_instance.particles),
+                command.Rotate(self.outer_instance.arlo, -np.pi / 4, self.outer_instance.particles),
+            ]
+
+        def update(self):
+            if self.state_index == 0:
+                if (
+                    self.commands[self.state_index].finished
+                    or self.commands[self.state_index].avoidance_mode
+                ):
+                    self.state_index += 1
+                    self.commands[self.state_index].run_command()
+                else:
+                    self.commands[self.state_index].run_command()
+
+    def set_state(self, state: RobotState, **kwargs):
         self.state = state
-        self.current_state = self.lost or self.moving or self.checking or self._lost
-        self.current_state.initialize()
+        self.current_state = (
+            self.lost or self.moving or self.checking or self.avoidance or self._lost
+        )
+        self.current_state.initialize(**kwargs)
 
     @property
     def lost(self):
@@ -251,6 +277,10 @@ class State:
     @property
     def checking(self):
         return self._checking if self.state == RobotState.checking else None
+
+    @property
+    def avoidance(self):
+        return self._avoidance if self.state == RobotState.avoidance else None
 
     def update(self):
         self.show_gui()
