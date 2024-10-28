@@ -103,6 +103,7 @@ class Constants:
         ENABLE_PREVIEW = 1
         ENABLE_GUI = 1
         CAMERA_FPS = 24
+        DRAW_PATH_BLOCKING = 0
 
     class PyPlot:
         valid_interactive_backends = [

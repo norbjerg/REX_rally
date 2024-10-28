@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Optional
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 
 import camera
@@ -126,7 +127,7 @@ class State:
             }
             self.seen_landmarks.update(useful_measurements_dict)
 
-            self.outer_instance.obstacles.update(  # TODO: find a way to get obstacles in world coordinates
+            self.outer_instance.obstacles = (  # TODO: find a way to get obstacles in world coordinates
                 {
                     obstacle_key: measurements[obstacle_key]
                     for obstacle_key in set(measurements).difference(
@@ -173,15 +174,33 @@ class State:
                     )
 
             self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+            est_pos = self.outer_instance.est_pos
+            local_goal_pos = np.array(
+                (est_pos.getX() - self.goal[0], est_pos.getY() - self.goal[1])
+            )
+
             map_ = rrt.GridOccupancyMap()
-            route_planner = rrt.RRT(start=self.outer_instance.est_pos.getPos(), goal=self.goal, map=map_)
+
+            map_.populate(self.outer_instance.obstacles)
+
+            route_planner = rrt.RRT(start=np.array((0, 0)), goal=local_goal_pos, map=map_)
             route = route_planner.planning()
 
             if self.outer_instance.route is not None:
                 self.outer_instance.set_state(RobotState.moving)
             elif route is None:
+                print("Could not find path")
                 self.outer_instance.set_state(RobotState.lost)
             else:
+                print("found route")
+
+                if Constants.PID.DRAW_PATH_BLOCKING:
+                    route_planner.draw_graph()
+                    plt.plot([x for (x, y) in route], [y for (x, y) in route], "-r")
+                    plt.grid(True)
+                    plt.pause(0.01)  # Need for Mac
+                    plt.show()
+
                 self.outer_instance.route = list(gen_command(route))
 
     class Moving:
@@ -190,7 +209,9 @@ class State:
             self.outer_instance = outer_instance
 
         def initialize(self):
-            self.current_command = self.outer_instance.route.pop()  # route should not be None at this point
+            self.current_command = (
+                self.outer_instance.route.pop()
+            )  # route should not be None at this point
             self.current_command.run_command()
 
         def update(self):

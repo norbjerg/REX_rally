@@ -1,10 +1,10 @@
+import matplotlib.pyplot as plt
 import numpy as np
 
 from constants import Constants
 
 
 class PointMassModel:
-    
     def __init__(self, ctrl_range) -> None:
         self.ctrl_range = ctrl_range
         return
@@ -70,6 +70,30 @@ class RRT:
         self.max_iter = max_iter
 
         self.node_list = []
+
+    def draw_graph(self, rnd=None):
+        # plt.clf()
+        # # for stopping simulation with the esc key.
+        # plt.gcf().canvas.mpl_connect(
+        #     'key_release_event',
+        #     lambda event: [exit(0) if event.key == 'escape' else None])
+        plt.clf()
+        if rnd is not None:
+            plt.plot(rnd.pos[0], rnd.pos[1], "^k")
+
+        # draw the map
+        self.map.draw_map()
+
+        for node in self.node_list:
+            if node.parent:
+                path = np.array(node.path)
+                plt.plot(path[:, 0], path[:, 1], "-g")
+
+        plt.plot(self.start.pos[0], self.start.pos[1], "xr")
+        plt.plot(self.end.pos[0], self.end.pos[1], "xr")
+        plt.axis(self.map.extent)
+        plt.grid(True)
+        plt.pause(0.01)
 
     def planning(self):
         """
@@ -263,7 +287,7 @@ class GridOccupancyMap(object):
         """
 
         origins = obstacles
-        radius = (Constants.Obstacle.SHAPE_RADIUS) / 1000
+        radius = (Constants.Obstacle.SHAPE_RADIUS) / 10
 
         # fill the grids by checking if the grid centroid is in any of the circle
         for i in range(self.n_grids[0]):
@@ -278,3 +302,15 @@ class GridOccupancyMap(object):
                     if np.linalg.norm(centroid - o) <= radius:
                         self.grid[i, j] = 1
                         break
+
+    def draw_map(self):
+        # note the x-y axes difference between imshow and plot
+        plt.imshow(
+            self.grid.T,
+            cmap="Reds",
+            origin="lower",
+            vmin=0,
+            vmax=1,
+            extent=self.extent,
+            interpolation="none",
+        )
