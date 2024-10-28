@@ -40,6 +40,13 @@ class Command(ABC):
         self.dist = 0
 
     def run_command(self):
+        if self.dist > 0 and not self.finished:
+            left, front, right = self.robot.read_sonars()
+            if front < 10:
+                self.robot.stop()
+                self.finished = True
+                return
+        
         if self.finished is True:
             return
         if self.start_time is None and self.command_time == 0:
@@ -73,6 +80,12 @@ class ControlWrapper:
     def stop(self):
         if self.isArlo:
             self.robot.stop()
+
+    def read_sonars(self):
+        if self.isArlo:
+            return (self.robot.read_left_ping_sensor(), self.robot.read_front_ping_sensor(), self.robot.read_right_ping_sensor())
+        else:
+            return (0,0,0,0)
 
 
 # TODO: Make command abstract + implement angle handling from calibrate.py

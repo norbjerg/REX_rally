@@ -176,7 +176,7 @@ class State:
                             self.outer_instance.arlo, dist / 4, self.outer_instance.particles
                         )
                         yield command.Wait(
-                            self.outer_instance.arlo, 0.5, self.outer_instance.particles
+                            self.outer_instance.arlo, 0.1, self.outer_instance.particles
                         )
 
             self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
