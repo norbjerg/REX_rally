@@ -164,7 +164,7 @@ class State:
                     dist, angle = math_utils.polar_diff(
                         self.outer_instance.est_pos.getPos,
                         self.outer_instance.est_pos.getTheta,
-                        np.array(n.pos),
+                        np.array(n.pos) if not isinstance(n, np.ndarray) else n,
                     )
                     yield command.Rotate(
                         self.outer_instance.arlo, angle, self.outer_instance.particles
