@@ -226,7 +226,10 @@ class State:
             self.current_command.run_command()
 
         def update(self):
-            if self.current_command.finished:
+            if len(self.outer_instance.route) == 0:
+                self.outer_instance.goals.pop(0)
+                self.outer_instance.set_state(RobotState.lost)
+            elif self.current_command.finished:
                 self.current_command = self.outer_instance.route.pop()
                 self.outer_instance.set_state(RobotState.checking)
             else:
