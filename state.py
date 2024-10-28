@@ -36,7 +36,6 @@ class State:
         self.WIN_RF1 = "Robot view"
         self.arlo = command.ControlWrapper(self.on_arlo)
         self.goals = Constants.World.goals
-        self.current_goal = self.goals[0]
 
         if self.on_arlo:
             self._cam = camera.Camera(0, robottype="arlo", useCaptureThread=True)
@@ -88,6 +87,7 @@ class State:
 
         def initialize(self) -> None:
             print("lost")
+
             def gen_command():
                 while True:
                     yield command.Wait(self.arlo, 2, self.outer_instance.particles)
@@ -157,7 +157,7 @@ class State:
 
         def initialize(self):
             print("checking")
-            self.goal = self.outer_instance.current_goal
+            self.goal = self.outer_instance.goals[0]
 
         def update(self):
             def gen_command(Nodes):
