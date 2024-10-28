@@ -76,6 +76,7 @@ class Constants:
         # SHAPE_MAX = 250  # in mm
         SHAPE_MAX = 150  # in mm
         SHAPE_RADIUS = SHAPE_MAX / 2
+        SHAPE_RADIUS_CM = SHAPE_RADIUS / 10
 
     class PID:
         if "PICAM" in os.environ:

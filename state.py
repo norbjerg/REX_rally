@@ -175,9 +175,13 @@ class State:
 
             self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
             est_pos = self.outer_instance.est_pos
-            local_goal_pos = np.array(
-                (est_pos.getX() - self.goal[0], est_pos.getY() - self.goal[1])
+            offset_vec = np.array([-np.sin(est_pos.getTheta()), np.cos(est_pos.getTheta())]) * (
+                Constants.Obstacle.SHAPE_RADIUS_CM + 20
             )
+            local_goal_pos = est_pos.getPos() - self.goal + offset_vec
+            # local_goal_pos = np.array(
+            #     (est_pos.getX() - self.goal[0], est_pos.getY() - self.goal[1])
+            # )
 
             map_ = rrt.GridOccupancyMap()
 

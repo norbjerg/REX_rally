@@ -9,7 +9,6 @@ def polar_diff(src_x, src_theta, target_x):
     particle_dist = np.linalg.norm(src_x - target_x)
 
     # Direction from particle to landmark (unit vector)
-    print(target_x, src_x, particle_dist)
     landmark_e = (target_x - src_x) / particle_dist
 
     # Particle's heading as unit vector
