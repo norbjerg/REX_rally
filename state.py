@@ -163,19 +163,22 @@ class State:
 
         def update(self):
             def gen_command(positions):
-                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
-                for position in positions:
-                    dist, angle = math_utils.polar_diff(
-                        self.outer_instance.est_pos.getPos(),
-                        self.outer_instance.est_pos.getTheta(),
-                        position,
-                    )
-                    yield command.Rotate(
-                        self.outer_instance.arlo, angle, self.outer_instance.particles
-                    )
-                    yield command.Straight(
-                        self.outer_instance.arlo, dist / 4, self.outer_instance.particles
-                    )
+                yield command.Straight(
+                    self.outer_instance.arlo, 100, self.outer_instance.particles
+                )
+                # self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+                # for position in positions:
+                #     dist, angle = math_utils.polar_diff(
+                #         self.outer_instance.est_pos.getPos(),
+                #         self.outer_instance.est_pos.getTheta(),
+                #         position,
+                #     )
+                #     yield command.Rotate(
+                #         self.outer_instance.arlo, angle, self.outer_instance.particles
+                #     )
+                #     yield command.Straight(
+                #         self.outer_instance.arlo, dist / 4, self.outer_instance.particles
+                #     )
 
             self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
             est_pos = self.outer_instance.est_pos
