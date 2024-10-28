@@ -101,8 +101,8 @@ class Constants:
             SCREEN_RESOLUTION[0] // (2**PREVIEW_DOWNSCALE),
             SCREEN_RESOLUTION[1] // (2**PREVIEW_DOWNSCALE),
         )
-        ENABLE_PREVIEW = 1
-        ENABLE_GUI = 1
+        ENABLE_PREVIEW = 0
+        ENABLE_GUI = 0
         CAMERA_FPS = 24
         DRAW_PATH_BLOCKING = 0
 
