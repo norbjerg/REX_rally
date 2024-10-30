@@ -182,7 +182,7 @@ class ParticlesWrapper:
 
         for i, p in enumerate(self.particles):
             pmf[i] = p.getWeight()
-            if pmf[i] == 0 or np.isnan(pmf[i]):
+            if np.isnan(pmf[i]):
                 print(pmf[i])
 
         # choice as indexes:
