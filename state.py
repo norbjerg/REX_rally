@@ -100,6 +100,12 @@ class State:
                         self.arlo, self.rotate_amount, self.outer_instance.particles
                     )
 
+            if self.outer_instance.est_pos is not None:
+                pos = self.outer_instance.est_pos.getPos()
+                if pos[0] < Constants.World.landmarkMin[0] - Constants.World.threshold_outside or pos[0] > Constants.World.landmarkMax[0] + Constants.World.threshold_outside or pos[1] < Constants.World.landmarkMin[1] - Constants.World.threshold_outside or pos[1] > Constants.World.landmarkMax[1] + Constants.World.threshold_outside:
+                    self.outer_instance.reset_particles()
+
+
             self.queue = iter(gen_command())
             self.current_command = next(self.queue)
             self.current_command.run_command()
@@ -128,58 +134,59 @@ class State:
                     # measurements.setdefault(objectID, (np.inf, np.inf))
                     self.measurements[objectID] = (dist, angle)
 
-            # if target_id in self.measurements:
-            #     print("Found target")
-            #     if self.measurements[target_id][0] > 80:
-            #         self.outer_instance.set_state(RobotState.moving)
+            if target_id in self.measurements:
+                print("Found target")
+                if self.measurements[target_id][0] > 80:
+                    self.outer_instance.set_state(RobotState.moving)
 
-            if len(self.measurements) > 0:
-                self.outer_instance.particles.update(self.measurements)
-                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
 
-                if (
-                    self.outer_instance.est_pos is not None
-                    and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
-                ):
-                    print("Low variance found")
-                    dist = np.linalg.norm(
-                        self.outer_instance.est_pos.getPos()
-                        - np.array(
-                            self.outer_instance.landmarks[
-                                self.outer_instance.goal_order[self.outer_instance.current_goal]
-                            ]
+                if len(self.measurements) > 0:
+                    # self.outer_instance.particles.update(self.measurements)
+                    # self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+
+                    if (
+                        self.outer_instance.est_pos is not None
+                        and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
+                    ):
+                        #print("Low variance found")
+                        dist = np.linalg.norm(
+                            self.outer_instance.est_pos.getPos()
+                            - np.array(
+                                self.outer_instance.landmarks[
+                                    self.outer_instance.goal_order[self.outer_instance.current_goal]
+                                ]
+                            )
                         )
-                    )
-                    print("dist from target", dist)
+                        #print("dist from target", dist)
 
-                    if dist < 130:
-                        print(
-                            "Found target reached. Moving to next target",
-                            self.outer_instance.goal_order[self.outer_instance.current_goal],
-                        )
-                        self.outer_instance.current_goal += 1
-                    else:
-                        self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
-                        x1, y1 = self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY()
-                        x2, y2 = (
-                            self.outer_instance.landmarks[
-                                self.outer_instance.goal_order[self.outer_instance.current_goal]
-                            ][0],
-                            self.outer_instance.landmarks[
-                                self.outer_instance.goal_order[self.outer_instance.current_goal]
-                            ][1],
-                        )
-                        delta_x = x2 - x1
-                        delta_y = y2 - y1
+                        if dist < 130:
+                            print(
+                                "Found target reached. Moving to next target",
+                                self.outer_instance.goal_order[self.outer_instance.current_goal],
+                            )
+                            self.outer_instance.current_goal += 1
+                        else:
+                            self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+                            x1, y1 = self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY()
+                            x2, y2 = (
+                                self.outer_instance.landmarks[
+                                    self.outer_instance.goal_order[self.outer_instance.current_goal]
+                                ][0],
+                                self.outer_instance.landmarks[
+                                    self.outer_instance.goal_order[self.outer_instance.current_goal]
+                                ][1],
+                            )
+                            delta_x = x2 - x1
+                            delta_y = y2 - y1
 
-                        togoal_theta = np.arctan2(delta_y, delta_x)
-                        if togoal_theta < 0:
-                            togoal_theta += 2 * np.pi
-                        
-                        est_theta = self.outer_instance.est_pos.getTheta()
-                        if est_theta < togoal_theta + 0.3 and est_theta > togoal_theta - 0.3:
-                            print("Found target, but too far away. Moving to target")
-                            self.outer_instance.set_state(RobotState.moving)
+                            togoal_theta = np.arctan2(delta_y, delta_x)
+                            if togoal_theta < 0:
+                                togoal_theta += 2 * np.pi
+                            
+                            est_theta = self.outer_instance.est_pos.getTheta()
+                            if est_theta < togoal_theta + 0.3 and est_theta > togoal_theta - 0.3:
+                                print("Found target, but too far away. Moving to target")
+                                #self.outer_instance.set_state(RobotState.moving)
 
             if len(self.measurements) == 1:
                 if self.initial_resample:
@@ -293,10 +300,11 @@ class State:
         def __init__(self, outer_instance: "State") -> None:
             self.cam: camera.Camera = outer_instance.cam
             self.outer_instance = outer_instance
-            self.initialize()
+            self.initialize(1)
 
-        def initialize(self):
-            print("avoidance")
+        def initialize(self, first=0):
+            if not first:
+                print("avoidance")
             command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)
             self.current_command = None
 

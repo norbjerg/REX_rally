@@ -85,8 +85,8 @@ class ControlWrapper:
     def go_diff(self, l, r, L, R):
         if self.isArlo:
             self.robot.go_diff(l, r, L, R)
-        else:
-            print(f"executing command diff({l, r, L, R}).")
+        # else:
+        #     print(f"executing command diff({l, r, L, R}).")
 
     def stop(self):
         if self.isArlo:
@@ -100,7 +100,7 @@ class ControlWrapper:
                 self.robot.read_right_ping_sensor(),
             )
         else:
-            return (0, 0, 0)
+            return (1000, 1000, 1000)
 
 
 # TODO: Make command abstract + implement angle handling from calibrate.py

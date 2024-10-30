@@ -102,8 +102,8 @@ class Constants:
             SCREEN_RESOLUTION[0] // (2**PREVIEW_DOWNSCALE),
             SCREEN_RESOLUTION[1] // (2**PREVIEW_DOWNSCALE),
         )
-        ENABLE_PREVIEW = 1
-        ENABLE_GUI = 1
+        ENABLE_PREVIEW = 0
+        ENABLE_GUI = 0
         CAMERA_FPS = 24
         DRAW_PATH_BLOCKING = 1
 
@@ -130,7 +130,7 @@ class Constants:
             1: (0.0, 0.0),
             2: (0.0, 200.0),
             3: (200.0, 0.0),
-            # 4: (200.0, 200.0),
+            4: (200.0, 200.0),
         }
 
         # landmarks = {
@@ -142,9 +142,12 @@ class Constants:
         # }
         landmarkIDs = list(landmarks)
         goals = [np.array(pos) for id, pos in landmarks.items()]
+        landmarkMin = (min([pos[0] for pos in goals]), min([pos[1] for pos in goals]))
+        landmarkMax = (max([pos[0] for pos in goals]), max([pos[1] for pos in goals]))
+        threshold_outside = 150
 
         # goal_order = [5, 8, 5, -1]
-        goal_order = [1, 3, 2, -1]
+        goal_order = [1, 2, 3,, 4, -1]
 
         num_particles = 600
         running_on_arlo = "PICAM" in os.environ
