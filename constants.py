@@ -55,8 +55,8 @@ class Constants:
         QUARTER_TURN_64 = 0.725  # sleep
         FORWARD_SPEED = 100 / 2.7  # cm/s
         ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
-        DISTANCE_NOISE = 5  # cm
-        ANGULAR_NOISE = 0.25  # rad
+        DISTANCE_NOISE = 1  # cm
+        ANGULAR_NOISE = 0.1  # rad
         CTRL_RANGE = [-20, 20]  # cm
 
     class Sensor:
@@ -118,20 +118,20 @@ class Constants:
         interactive_backend = "Qt5Agg"
 
     class World:
-        # landmarks = {
-        #     # TODO: Change
-        #     1: (0.0, 0.0),
-        #     2: (0.0, 300.0),
-        #     3: (400.0, 0.0),
-        #     4: (400.0, 300.0),
-        # }
         landmarks = {
             # TODO: Change
             1: (0.0, 0.0),
-            2: (0.0, 200.0),
-            3: (200.0, 0.0),
-            4: (200.0, 200.0),
+            2: (0.0, 300.0),
+            3: (400.0, 0.0),
+            4: (400.0, 300.0),
         }
+        # landmarks = {
+        #     # TODO: Change
+        #     1: (0.0, 0.0),
+        #     2: (0.0, 200.0),
+        #     3: (200.0, 0.0),
+        #     4: (200.0, 200.0),
+        # }
 
         # landmarks = {
         #     # TODO: Change
