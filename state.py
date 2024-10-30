@@ -239,13 +239,9 @@ class State:
 
         def initialize(self):
             print("moving")
-            if command.too_close(self.left, self.right, self.front):
-                self.current_command.robot.stop()
-                self.outer_instance.set_state(RobotState.avoidance)
-            else:
-                self.current_command = command.Straight(
-                    self.outer_instance.arlo, 20, self.outer_instance.particles
-                )
+            self.current_command = command.Straight(
+                self.outer_instance.arlo, 20, self.outer_instance.particles
+            )
             self.startTime = time.time()
 
         def update(self):
