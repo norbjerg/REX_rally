@@ -282,9 +282,7 @@ class State:
                 yield command.Rotate(
                     self.outer_instance.arlo, self.togoal_theta, self.outer_instance.particles
                 )
-                yield command.Straight(
-                    self.outer_instance.arlo, togoal_dist, self.outer_instance.particles
-                )
+                yield command.Straight(self.outer_instance.arlo, 20, self.outer_instance.particles)
 
             self.commands = iter(gen_command())
             self.current_command = next(self.commands)
