@@ -274,9 +274,6 @@ class State:
         def update(self):
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
 
-            if self.left > 10 and self.right > 10 and self.front > 200:
-                self.outer_instance.set_state(RobotState.moving)
-
             if self.current_command is None:
                 if self.right > self.left:
                     self.current_command = command.Rotate(
