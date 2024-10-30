@@ -274,19 +274,27 @@ class State:
         def initialize(self):
             print("avoidance")
             command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)
+            self.current_command = None
 
         def update(self):
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
 
             if self.left > 10 and self.right > 10 and self.front > 200:
                 self.outer_instance.set_state(RobotState.moving)
-            else:
-                self.outer_instance.set_state(RobotState.lost)
 
-            if self.right > self.left:
-                command.Rotate(self.outer_instance.arlo, 0.5, self.outer_instance.particles)
+            if self.current_command is None:
+                if self.right > self.left:
+                    self.current_command = command.Rotate(
+                        self.outer_instance.arlo, 0.5, self.outer_instance.particles
+                    )
+                else:
+                    self.current_command = command.Rotate(
+                        self.outer_instance.arlo, -0.5, self.outer_instance.particles
+                    )
+            elif self.current_command.finished:
+                self.outer_instance.set_state(RobotState.lost)
             else:
-                command.Rotate(self.outer_instance.arlo, -0.5, self.outer_instance.particles)
+                self.current_command.run_command()
 
     def set_state(self, state: RobotState, **kwargs):
         self.state = state

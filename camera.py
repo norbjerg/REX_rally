@@ -552,8 +552,6 @@ if (__name__=='__main__'):
         # Draw detected objects
         cam.draw_aruco_objects(colour)
 
-    
-        colour = cv2.resize(colour, (1640//2, 1232//2), interpolation=cv2.INTER_AREA)
         # Show frames
         cv2.imshow(WIN_RF1, colour)
         
