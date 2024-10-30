@@ -130,10 +130,10 @@ class State:
                     # measurements.setdefault(objectID, (np.inf, np.inf))
                     self.measurements[objectID] = (dist, angle)
 
-            if target_id in self.measurements:
-                print("Found target")
-                if self.measurements[target_id][0] > 80:
-                    self.outer_instance.set_state(RobotState.moving)
+            # if target_id in self.measurements:
+            #     print("Found target")
+            #     if self.measurements[target_id][0] > 80:
+            #         self.outer_instance.set_state(RobotState.moving)
 
             if len(self.measurements) > 0:
                 self.outer_instance.particles.update(self.measurements)
@@ -153,7 +153,7 @@ class State:
                     )
                 )
                 print("dist from target", dist)
-                if dist < 130:
+                if dist < 180:
                     print(
                         "Found target reached. Moving to next target",
                         self.outer_instance.goal_order[self.outer_instance.current_goal + 1],

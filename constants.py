@@ -56,7 +56,7 @@ class Constants:
         FORWARD_SPEED = 100 / 2.7  # cm/s
         ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
         DISTANCE_NOISE = 1  # cm
-        ANGULAR_NOISE = 0.1  # rad
+        ANGULAR_NOISE = 0.05  # rad
         CTRL_RANGE = [-20, 20]  # cm
 
     class Sensor:
