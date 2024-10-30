@@ -23,7 +23,7 @@ FORWARD_SPEED = Constants.Robot.FORWARD_SPEED
 
 
 class Command(ABC):
-    def __init__(self, robot, particles=None):
+    def __init__(self, robot, particles):
         self.robot: ControlWrapper = robot
         if particles is None:
             ParticlesWrapper(0, [])
