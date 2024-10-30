@@ -149,6 +149,22 @@ class State:
                         ]
                     )
                 )
+                self.outer_instance.est_pos.getPos()
+                # find angle to target
+                x1, y1 = self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY()
+                x2, y2 = (
+                    self.outer_instance.landmarks[
+                        self.outer_instance.goal_order[self.outer_instance.current_goal]
+                    ][0],
+                    self.outer_instance.landmarks[
+                        self.outer_instance.goal_order[self.outer_instance.current_goal]
+                    ][1],
+                )
+                delta_x = x2 - x1
+                delta_y = y2 - y1
+
+                togoal_theta = np.arctan2(delta_y, delta_x)
+
                 print("dist from target", dist)
                 if dist < 120:
                     print(
@@ -158,7 +174,7 @@ class State:
                     self.outer_instance.current_goal += 1
                 else:
                     print("Found target, but too far away. Moving to target")
-                    self.outer_instance.set_state(RobotState.moving)
+                    self.outer_instance.set_state(RobotState.moving, togoal_theta=togoal_theta)
 
             if self.current_command.finished:
                 self.current_command = next(self.queue)
@@ -236,15 +252,27 @@ class State:
             self.outer_instance = outer_instance
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
 
-        def initialize(self):
+        def initialize(self, togoal_theta):
             print("moving")
-            self.current_command = command.Straight(
-                self.outer_instance.arlo, 20, self.outer_instance.particles
-            )
+
+            self.togoal_theta = togoal_theta
             self.startTime = time.time()
+
+            def gen_command():
+                yield command.Rotate(
+                    self.outer_instance.arlo, self.togoal_theta, self.outer_instance.particles
+                )
+                yield command.Straight(
+                    self.outer_instance.arlo, 20, self.outer_instance.particles
+                )
+
+            self.commands = iter(gen_command())
+            self.current_command = next(self.commands)
 
         def update(self):
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
+            
+            
             if command.too_close(self.left, self.right, self.front):
                 self.outer_instance.set_state(RobotState.avoidance)
                 return
