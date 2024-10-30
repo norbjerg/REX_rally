@@ -92,6 +92,7 @@ class State:
 
         def initialize(self) -> None:
             print("lost")
+
             def gen_command():
                 while True:
                     yield command.Wait(self.arlo, 2, self.outer_instance.particles)
@@ -135,7 +136,10 @@ class State:
                 if self.measurements[target_id][0] > 80:
                     self.outer_instance.set_state(RobotState.moving)
 
-            if self.outer_instance.est_pos is not None:
+            if (
+                self.outer_instance.est_pos is not None
+                and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
+            ):
                 dist = np.linalg.norm(
                     self.outer_instance.est_pos.getPos()
                     - np.array(
@@ -147,6 +151,9 @@ class State:
                 if dist < 60:
                     print("Found target reached. Moving to next target")
                     self.outer_instance.current_goal += 1
+                else:
+                    print("Found target, but too far away. Moving to target")
+                    self.outer_instance.set_state(RobotState.moving)
 
             if len(self.measurements) == 1 and self.initial_resample:
                 self.outer_instance.particles.update(self.measurements)
@@ -246,6 +253,7 @@ class State:
             self.startTime = time.time()
 
         def update(self):
+            self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
             if command.too_close(self.left, self.right, self.front):
                 self.outer_instance.set_state(RobotState.avoidance)
                 return

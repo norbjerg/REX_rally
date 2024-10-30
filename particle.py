@@ -11,11 +11,12 @@ from math_utils import normal, polar_diff
 class Particle(object):
     """Data structure for storing particle information (state and weight)"""
 
-    def __init__(self, x=0.0, y=0.0, theta=0.0, weight=0.0):
+    def __init__(self, x=0.0, y=0.0, theta=0.0, weight=0.0, min_maxes=None):
         self.x = x
         self.y = y
         self.theta = np.mod(theta, 2.0 * np.pi)
         self.weight = weight
+        self.min_maxes = min_maxes
 
     def __copy__(self):
         return type(self)(self.getX(), self.getY(), self.getTheta(), self.getWeight())
@@ -25,7 +26,7 @@ class Particle(object):
 
     def getY(self):
         return self.y
-    
+
     def getPos(self):
         return np.array((self.x, self.y))
 
@@ -34,6 +35,16 @@ class Particle(object):
 
     def getWeight(self):
         return self.weight
+
+    def getMinMaxes(self):
+        return self.min_maxes
+
+    def checkLowVarianceMinMaxes(self):
+        if self.min_maxes is None:
+            return False
+
+        (min_x, max_x), (min_y, max_y) = self.min_maxes
+        return max_x - min_x < 25 and max_y - min_y < 25
 
     def setX(self, val):
         self.x = val
@@ -106,11 +117,29 @@ class ParticlesWrapper:
         cos_sum = 0.0
         sin_sum = 0.0
 
+        min_x = np.inf
+        max_x = -np.inf
+        min_y = np.inf
+        max_y = -np.inf
+
         for particle in self.particles:
             w = particle.getWeight()
 
-            x_sum += particle.getX()
-            y_sum += particle.getY()
+            x = particle.getX()
+            y = particle.getY()
+
+            x_sum += x
+            y_sum += y
+
+            if x < min_x:
+                min_x = x
+            if x > max_x:
+                max_x = x
+            if y < min_y:
+                min_y = y
+            if y > max_y:
+                max_y = y
+
             cos_sum += np.cos(particle.getTheta())
             sin_sum += np.sin(particle.getTheta())
 
@@ -124,7 +153,7 @@ class ParticlesWrapper:
             y = y_sum
             theta = 0.0
 
-        return Particle(x, y, theta)
+        return Particle(x, y, theta, min_maxes=((min_x, max_x), (min_y, max_y)))
 
     def add_uncertainty(self, sigma, sigma_theta):
         """Add some noise to each particle in the list. Sigma and sigma_theta is the noise
