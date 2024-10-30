@@ -158,19 +158,13 @@ class State:
                 )
                 self.outer_instance.est_pos.getPos()
                 # find angle to target
-                x1, y1 = self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY()
-                x2, y2 = (
+                _, togoal_theta = math_utils.polar_diff(
+                    self.outer_instance.est_pos.getPos(),
+                    self.outer_instance.est_pos.getTheta(),
                     self.outer_instance.landmarks[
                         self.outer_instance.goal_order[self.outer_instance.current_goal]
-                    ][0],
-                    self.outer_instance.landmarks[
-                        self.outer_instance.goal_order[self.outer_instance.current_goal]
-                    ][1],
+                    ],
                 )
-                delta_x = x2 - x1
-                delta_y = y2 - y1
-
-                togoal_theta = np.arctan2(delta_y, delta_x)
 
                 print("dist from target", dist)
                 if dist < 80:
@@ -274,9 +268,9 @@ class State:
             self.togoal_theta = togoal_theta
 
             def gen_command():
-                # yield command.Rotate(
-                #     self.outer_instance.arlo, self.togoal_theta, self.outer_instance.particles
-                # )
+                yield command.Rotate(
+                    self.outer_instance.arlo, self.togoal_theta, self.outer_instance.particles
+                )
                 yield command.Straight(self.outer_instance.arlo, 20, self.outer_instance.particles)
 
             self.commands = iter(gen_command())
