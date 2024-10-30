@@ -57,7 +57,7 @@ class Constants:
         ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
         DISTANCE_NOISE = 1  # cm
         ANGULAR_NOISE = 0.1  # rad
-        CTRL_RANGE = [-20,20]  # cm
+        CTRL_RANGE = [-20, 20]  # cm
 
     class Sensor:
         MAX_SPEED = 100
@@ -102,7 +102,7 @@ class Constants:
             SCREEN_RESOLUTION[0] // (2**PREVIEW_DOWNSCALE),
             SCREEN_RESOLUTION[1] // (2**PREVIEW_DOWNSCALE),
         )
-        ENABLE_PREVIEW = 0
+        ENABLE_PREVIEW = 1
         ENABLE_GUI = 1
         CAMERA_FPS = 24
         DRAW_PATH_BLOCKING = 1
