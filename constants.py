@@ -134,7 +134,7 @@ class Constants:
         landmarkIDs = list(landmarks)
         goals = [np.array(pos) for id, pos in landmarks.items()]
 
-        goal_order = [5, 8, 5, 0]
+        goal_order = [5, 8, 5, -1]
 
         num_particles = 600
         running_on_arlo = "PICAM" in os.environ
