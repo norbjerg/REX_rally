@@ -125,16 +125,26 @@ class Constants:
         #     3: (400.0, 0.0),
         #     4: (400.0, 300.0),
         # }
-
         landmarks = {
             # TODO: Change
-            5: (0.0, 0.0),
-            8: (0.0, 300.0),
+            1: (0.0, 0.0),
+            2: (0.0, 200.0),
+            3: (200.0, 0.0),
+            4: (200.0, 200.0),
         }
+
+        # landmarks = {
+        #     # TODO: Change
+        #     5: (0.0, 0.0),
+        #     8: (0.0, 300.0),
+        #     3: (400.0, 0.0),
+        #     4: (400.0, 300.0),
+        # }
         landmarkIDs = list(landmarks)
         goals = [np.array(pos) for id, pos in landmarks.items()]
 
-        goal_order = [5, 8, 5, -1]
+        # goal_order = [5, 8, 5, -1]
+        goal_order = [1, 2, 3, 4, 1, -1]
 
         num_particles = 600
         running_on_arlo = "PICAM" in os.environ
