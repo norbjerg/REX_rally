@@ -112,11 +112,6 @@ class State:
             objectIDs, dists, angles = self.cam.detect_aruco_objects(
                 self.outer_instance.colour
             )  # Detect objects
-
-            self.outer_instance.particles.add_uncertainty(
-                Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE
-            )
-
             target_id = self.outer_instance.goal_order[self.outer_instance.current_goal]
             
             if target_id == -1:
@@ -133,9 +128,14 @@ class State:
                     # measurements.setdefault(objectID, (np.inf, np.inf))
                     self.measurements[objectID] = (dist, angle)
 
-            if target_id in self.measurements:
-                if self.measurements[target_id][0] > 80:
-                    self.outer_instance.set_state(RobotState.moving)
+            # if target_id in self.measurements:
+            #     print("Found target")
+            #     if self.measurements[target_id][0] > 80:
+            #         self.outer_instance.set_state(RobotState.moving)
+
+            if len(self.measurements) > 0:
+                self.outer_instance.particles.update(self.measurements)
+                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
 
                 if (
                     self.outer_instance.est_pos is not None
