@@ -274,9 +274,9 @@ class State:
             self.togoal_theta = togoal_theta
 
             def gen_command():
-                yield command.Rotate(
-                    self.outer_instance.arlo, self.togoal_theta, self.outer_instance.particles
-                )
+                # yield command.Rotate(
+                #     self.outer_instance.arlo, self.togoal_theta, self.outer_instance.particles
+                # )
                 yield command.Straight(self.outer_instance.arlo, 20, self.outer_instance.particles)
 
             self.commands = iter(gen_command())
