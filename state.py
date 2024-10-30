@@ -237,9 +237,14 @@ class State:
         def update(self):
             if command.too_close(self.left, self.right, self.front):
                 self.outer_instance.set_state(RobotState.avoidance)
+                return
 
             if time.time() - self.startTime >= 2:                 
                  self.outer_instance.set_state(RobotState.lost)
+                 return
+
+            self.current_command.run_command()
+
 
             
 
