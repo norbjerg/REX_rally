@@ -173,7 +173,7 @@ class ParticlesWrapper:
 
             # do the update
             parti.move_particle(deltaXY[0], deltaXY[1], -angle)
-        print("moved particles", distance, angle)
+        # print("moved particles", distance, angle)
 
     def resample_particles(self):
         pmf = np.zeros(self.num_particles, dtype=np.float64)
