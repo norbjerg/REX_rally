@@ -21,6 +21,7 @@ class RobotState(Enum):
     checking = 2
     avoidance = 3
 
+
 class State:
     def __init__(self) -> None:
         self.on_arlo = Constants.World.running_on_arlo
@@ -53,7 +54,7 @@ class State:
 
         self._lost = self.Lost(self)
         self._moving = self.Moving(self)
-        self._checking = None #self.Checking(self)
+        self._checking = None  # self.Checking(self)
         self._avoidance = self.Avoidance(self)
         self.current_state = self._lost
 
@@ -92,8 +93,8 @@ class State:
             def gen_command():
                 while True:
                     yield command.Wait(self.arlo, 2, self.outer_instance.particles)
-                    yield command.Rotate(self.arlo, 0.5, self.outer_instance.particles)
-            
+                    yield command.Rotate(self.arlo, np.deg2rad(15), self.outer_instance.particles)
+
             self.outer_instance.reset_particles()
             self.queue = iter(gen_command())
             self.current_command = next(self.queue)
@@ -104,33 +105,45 @@ class State:
             self.measurements = dict()
 
         def update(self):
-            objectIDs, dists, angles = self.cam.detect_aruco_objects(self.outer_instance.colour) # Detect objects
-            self.outer_instance.particles.add_uncertainty(Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE)
-            #time.sleep(0.1)
+            objectIDs, dists, angles = self.cam.detect_aruco_objects(
+                self.outer_instance.colour
+            )  # Detect objects
+            self.outer_instance.particles.add_uncertainty(
+                Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE
+            )
+            # time.sleep(0.1)
             target_id = self.outer_instance.goal_order[self.outer_instance.current_goal]
             if target_id == 0:
                 print("Finished all targets. Stopping")
-                command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)    
+                command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)
                 return
 
-            if (not isinstance(objectIDs, type(None)) and not isinstance(dists, type(None)) and not isinstance(angles, type(None))):
+            if (
+                not isinstance(objectIDs, type(None))
+                and not isinstance(dists, type(None))
+                and not isinstance(angles, type(None))
+            ):
                 for objectID, dist, angle in zip(objectIDs, dists, angles):
-                    #measurements.setdefault(objectID, (np.inf, np.inf))
+                    # measurements.setdefault(objectID, (np.inf, np.inf))
                     self.measurements[objectID] = (dist, angle)
-                
+
                 target_id = self.outer_instance.goal_order[self.outer_instance.current_goal]
                 if target_id == 0:
                     print("Finished all targets. Stopping")
-                    command.Straight(self.outer_instance.arlo, 100, self.outer_instance.particles)    
+                    command.Straight(self.outer_instance.arlo, 100, self.outer_instance.particles)
                     return
 
                 if target_id in self.measurements:
                     print("Found target")
-                    if self.measurements[target_id][0] <= 80: # TODO: Ændre det her til noget mere præcis
+                    if (
+                        self.measurements[target_id][0] <= 80
+                    ):  # TODO: Ændre det her til noget mere præcis
                         print("Found target reached. Moving to next target")
-                        #self.outer_instance.current_goal += 1
-                    else: 
-                        self.outer_instance.set_state(RobotState.moving) # lidt i tvivl om robottens FOV
+                        # self.outer_instance.current_goal += 1
+                    else:
+                        self.outer_instance.set_state(
+                            RobotState.moving
+                        )  # lidt i tvivl om robottens FOV
 
             if len(self.measurements) == 1 and self.initial_resample:
                 self.outer_instance.particles.update(self.measurements)
@@ -141,7 +154,6 @@ class State:
                 self.initial_resample = True
                 self.measurements = dict()
                 self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
-            
 
             # useful_measurements = set(measurements).intersection(set(self.outer_instance.landmarkIDs))
             # useful_measurements_dict = {useful_key: measurements[useful_key] for useful_key in useful_measurements}
@@ -157,19 +169,27 @@ class State:
             # if self.current_command.finished:
             #     self.current_command = next(self.queue)
 
-
             if self.current_command.finished:
                 self.current_command = next(self.queue)
                 self.rotated_times += 1
 
             # RIP DET HER HAHA
-            if self.rotated_times >= 16: #and math_utils.angle_between_two_points(self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY(), self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]][0], self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]][1]) < 0.1:
+            if (
+                self.rotated_times >= 16
+            ):  # and math_utils.angle_between_two_points(self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY(), self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]][0], self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]][1]) < 0.1:
                 self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
                 x1, y1 = self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY()
-                x2, y2 = self.outer_instance.landmarks[self.outer_instance.goal_order[self.outer_instance.current_goal]][0], self.outer_instance.landmarks[self.outer_instance.goal_order[self.outer_instance.current_goal]][1]
+                x2, y2 = (
+                    self.outer_instance.landmarks[
+                        self.outer_instance.goal_order[self.outer_instance.current_goal]
+                    ][0],
+                    self.outer_instance.landmarks[
+                        self.outer_instance.goal_order[self.outer_instance.current_goal]
+                    ][1],
+                )
                 delta_x = x2 - x1
                 delta_y = y2 - y1
-                
+
                 togoal_theta = np.arctan2(delta_y, delta_x)
                 if togoal_theta < 0:
                     togoal_theta += 2 * np.pi
@@ -187,7 +207,9 @@ class State:
             self.initialize()
 
         def initialize(self):
-            self.goal = self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]]
+            self.goal = self.outer_instance.goals[
+                self.outer_instance.goal_order[self.outer_instance.current_goal]
+            ]
 
         def update(self):
             def gen_command(positions):
@@ -218,8 +240,6 @@ class State:
                 self.outer_instance.route = list(gen_command([local_goal_pos]))
             else:
                 print("No route found")
-                
-
 
     class Moving:
         def __init__(self, outer_instance: "State") -> None:
@@ -231,7 +251,9 @@ class State:
             if command.too_close(self.left, self.right, self.front):
                 self.outer_instance.set_state(RobotState.avoidance)
             else:
-                self.current_command = command.Straight(self.outer_instance.arlo, 50, self.outer_instance.particles)
+                self.current_command = command.Straight(
+                    self.outer_instance.arlo, 50, self.outer_instance.particles
+                )
             self.startTime = time.time()
 
         def update(self):
@@ -239,14 +261,11 @@ class State:
                 self.outer_instance.set_state(RobotState.avoidance)
                 return
 
-            if time.time() - self.startTime >= 2:                 
-                 self.outer_instance.set_state(RobotState.lost)
-                 return
+            if time.time() - self.startTime >= 2:
+                self.outer_instance.set_state(RobotState.lost)
+                return
 
             self.current_command.run_command()
-
-
-            
 
     class Avoidance:
         def __init__(self, outer_instance: "State") -> None:
@@ -267,7 +286,6 @@ class State:
                 command.Rotate(self.outer_instance.arlo, 0.5, self.outer_instance.particles)
             else:
                 command.Rotate(self.outer_instance.arlo, -0.5, self.outer_instance.particles)
-
 
     def set_state(self, state: RobotState, **kwargs):
         self.state = state
