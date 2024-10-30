@@ -53,7 +53,7 @@ class State:
 
         self._lost = self.Lost(self)
         self._moving = self.Moving(self)
-        self._checking = self.Checking(self)
+        self._checking = None #self.Checking(self)
         self._avoidance = self.Avoidance(self)
         self.current_state = self._lost
 
