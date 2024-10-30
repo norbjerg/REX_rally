@@ -262,20 +262,17 @@ class State:
                 yield command.Rotate(
                     self.outer_instance.arlo, self.togoal_theta, self.outer_instance.particles
                 )
-                yield command.Straight(
-                    self.outer_instance.arlo, 20, self.outer_instance.particles
-                )
+                yield command.Straight(self.outer_instance.arlo, 20, self.outer_instance.particles)
 
             self.commands = iter(gen_command())
             self.current_command = next(self.commands)
 
         def update(self):
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
-            
-            
-            if command.too_close(self.left, self.right, self.front):
-                self.outer_instance.set_state(RobotState.avoidance)
-                return
+
+            # if command.too_close(self.left, self.right, self.front):
+            #     self.outer_instance.set_state(RobotState.avoidance)
+            #     return
 
             if time.time() - self.startTime >= 2:
                 self.outer_instance.set_state(RobotState.lost)
