@@ -6,6 +6,8 @@ import numpy as np
 
 from constants import Constants
 from particle import Particle, ParticlesWrapper
+import math_utils
+import itertools
 
 if Constants.World.running_on_arlo:
     import os
@@ -154,16 +156,56 @@ class Wait(Command):
         self.power = 0
 
 
+class Approach(Command):
+    def __init__(self, landmark_pos, robot, particles):
+        super().__init__(robot, particles)
+        est_pos = particles.estimate_pose()
+        dist, angle = math_utils.polar_diff(est_pos.getPos(), est_pos.getTheta(), landmark_pos)
+        # approach command is actually an infinite list of commands
+        self.sub_plan = ([Rotate(robot, angle, particles)] +
+            [Straight(robot, 10, particles) for _ in range(200)] 
+        )
+        
+        self.plan_index = 0 
+        self.current_command = self.sub_plan[self.plan_index]
+        self.run_command()
+        
+
+    def run_command(self):
+        self.current_command.run_command()
+
+        # export for future use
+        self.begun = self.current_command.begun
+        self.finished = self.current_command.finished
+        self.avoidance_mode = self.current_command.avoidance_mode
+        self.check_sensors()
+
+        _l_sonar, f_sonar, _r_sonar = self.sonars 
+        if self.finished:
+            return
+        if f < 50:
+            print("stopping in approach")
+            self.robot.stop()
+            return 
+        if self.current_command.finished:
+            self.plan_index += 1
+            self.current_command = self.sub_plan[self.plan_index]
+
+
+
+
 # testing code
 if __name__ == "__main__":
     # arlo = None
     arlo = ControlWrapper(IS_ARLO)
-    queue: list[Command] = []
-    queue.append(Rotate(arlo, np.deg2rad(90)))
-    queue.append(Straight(arlo, 100))
-    queue.append(Wait(arlo, 5))
-    queue.append(Straight(arlo, -100))
-    queue.append(Rotate(arlo, -np.deg2rad(90)))
+    queue: list[Command] = [
+        # (Rotate(arlo, np.deg2rad(90))),
+        # (Straight(arlo, 100)),
+        # (Wait(arlo, 5)),
+        # (Straight(arlo, -100)),
+        # (Rotate(arlo, -np.deg2rad(90)))
+        Approach(np.array([0,0]), arlo, ParticlesWrapper(100,Constants.World.landmarks))
+        ]
 
     while len(queue) > 0:
         command = queue.pop(0)
