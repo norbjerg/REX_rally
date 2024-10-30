@@ -249,6 +249,7 @@ class State:
 
         def initialize(self):
             if command.too_close(self.left, self.right, self.front):
+                self.current_command.robot.stop()
                 self.outer_instance.set_state(RobotState.avoidance)
             else:
                 self.current_command = command.Straight(
