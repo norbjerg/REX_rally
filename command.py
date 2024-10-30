@@ -53,16 +53,19 @@ class Command(ABC):
         
         if self.finished is True:
             return
+        
         if self.start_time is None and self.command_time == 0:
             self.finished = True
             self.begun = True
             return
+        
         if self.start_time is None:
             self.particles.move_particles(self.dist, self.angle)
             self.particles.add_uncertainty(Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE)
             self.start_time = time.time()
             self.robot.go_diff(self.power, self.power, *self.mov_dirs)
             self.begun = True
+        
         elif time.time() - self.start_time >= self.command_time:
             self.robot.stop()
             self.finished = True
@@ -135,7 +138,10 @@ class Straight(Command):
         self.dist = distance
         self.command_time = abs(distance) / FORWARD_SPEED
 
-
+def too_close(left, right, front):
+    if front < 20 or left < 20 or right < 20:
+        return True
+    return False
 
 class Wait(Command):
     def __init__(self, robot, grace_time, particles=None) -> None:

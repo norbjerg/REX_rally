@@ -70,15 +70,15 @@ class Info:
             cv2.moveWindow(self.WIN_World, 500, 50)
 
         # Allocate space for world map
-        self.world = np.zeros((500, 500, 3), dtype=np.uint8)
+        self.world = np.zeros((600, 500, 3), dtype=np.uint8)
 
     def draw_world(self, particles, est_pose=None):
         """Visualization.
         This functions draws robots position in the world coordinate system."""
 
         # Fix the origin of the coordinate system
-        offsetX = 100
-        offsetY = 250
+        offsetX = 50
+        offsetY = 100
 
         # Constant needed for transforming from world coordinates to screen coordinates (flip the y-axis)
         ymax = self.world.shape[0]

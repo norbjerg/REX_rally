@@ -55,8 +55,8 @@ class Constants:
         QUARTER_TURN_64 = 0.725  # sleep
         FORWARD_SPEED = 100 / 2.7  # cm/s
         ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
-        DISTANCE_NOISE = 5  # cm
-        ANGULAR_NOISE = 0.2  # rad
+        DISTANCE_NOISE = 1  # cm
+        ANGULAR_NOISE = 0.1  # rad
         CTRL_RANGE = [-20,20]  # cm
 
     class Sensor:
@@ -97,13 +97,13 @@ class Constants:
             ],
             dtype=float,
         )
-        PREVIEW_DOWNSCALE = 1
+        PREVIEW_DOWNSCALE = 0
         PREVIEW_DIMENSIONS = (
             SCREEN_RESOLUTION[0] // (2**PREVIEW_DOWNSCALE),
             SCREEN_RESOLUTION[1] // (2**PREVIEW_DOWNSCALE),
         )
         ENABLE_PREVIEW = 0
-        ENABLE_GUI = 0
+        ENABLE_GUI = 1
         CAMERA_FPS = 24
         DRAW_PATH_BLOCKING = 1
 
@@ -120,14 +120,16 @@ class Constants:
     class World:
         landmarks = {
             # TODO: Change
-            7: (0.0, 0.0),
-            2: (0.0, 100.0),
-
+            1: (0.0, 0.0),
+            2: (0.0, 300.0),
             3: (400.0, 0.0),
             4: (400.0, 300.0),
         }
         landmarkIDs = list(landmarks)
         goals = [np.array(pos) for id, pos in landmarks.items()]
+
+        goal_order = [1, 1, 1, 0]
+
         num_particles = 600
         running_on_arlo = "PICAM" in os.environ
         draw_particles = True

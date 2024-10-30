@@ -93,90 +93,44 @@ class State:
                 while True:
                     yield command.Wait(self.arlo, 2, self.outer_instance.particles)
                     yield command.Rotate(self.arlo, 0.5, self.outer_instance.particles)
-            
+
             self.outer_instance.reset_particles()
             self.queue = iter(gen_command())
             self.current_command = next(self.queue)
             self.current_command.run_command()
             self.seen_landmarks = dict()
-            self.initial_resample = True
-            self.rotated_times = 0
-            self.measurements = dict()
+            self.resampled = False
 
         def update(self):
             objectIDs, dists, angles = self.cam.detect_aruco_objects(self.outer_instance.colour) # Detect objects
-            self.outer_instance.particles.add_uncertainty(Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE)
-            #time.sleep(0.1)
-            target_id = self.outer_instance.goal_order[self.outer_instance.current_goal]
-            if target_id == 0:
-                print("Finished all targets. Stopping")
-                command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)    
-                return
+            
+            measurements = dict()
 
+            # Pick the closest marker
             if (not isinstance(objectIDs, type(None)) and not isinstance(dists, type(None)) and not isinstance(angles, type(None))):
                 for objectID, dist, angle in zip(objectIDs, dists, angles):
-                    #measurements.setdefault(objectID, (np.inf, np.inf))
-                    self.measurements[objectID] = (dist, angle)
+                    measurements.setdefault(objectID, (np.inf, np.inf))
+                    exist_dist, exist_angle = measurements[objectID]
+                    if dist < exist_dist:
+                        measurements[objectID] = (dist, angle)
                 
-                target_id = self.outer_instance.goal_order[self.outer_instance.current_goal]
-                if target_id == 0:
-                    print("Finished all targets. Stopping")
-                    command.Straight(self.outer_instance.arlo, 100, self.outer_instance.particles)    
-                    return
+                 # Afsted ingen vrøvl!
+                if len(self.seen_landmarks) >= 2 and self.outer_instance.goal_order[self.outer_instance.current_goal] in objectIDs:
+                    self.outer_instance.set_state(RobotState.moving)
 
-                if target_id in self.measurements:
-                    print("Found target")
-                    if self.measurements[target_id][0] <= 80: # TODO: Ændre det her til noget mere præcis
-                        print("Found target reached. Moving to next target")
-                        #self.outer_instance.current_goal += 1
-                    else: 
-                        self.outer_instance.set_state(RobotState.moving) # lidt i tvivl om robottens FOV
+            useful_measurements = set(measurements).intersection(set(self.outer_instance.landmarkIDs))
+            useful_measurements_dict = {useful_key: measurements[useful_key] for useful_key in useful_measurements}
+            self.seen_landmarks.update(useful_measurements_dict)
 
-            if len(self.measurements) == 1 and self.initial_resample:
-                self.outer_instance.particles.update(self.measurements)
-                self.initial_resample = False
+            if len(useful_measurements) > 0 and self.resampled:  # perform resampling on the particles
+                self.outer_instance.particles.update(useful_measurements_dict)
+                self.resampled = False
 
-            if len(self.measurements) >= 2:
-                self.outer_instance.particles.update(self.measurements)
-                self.initial_resample = True
-                self.measurements = dict()
-                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
-            
-
-            # useful_measurements = set(measurements).intersection(set(self.outer_instance.landmarkIDs))
-            # useful_measurements_dict = {useful_key: measurements[useful_key] for useful_key in useful_measurements}
-            # self.seen_landmarks.update(useful_measurements_dict)
-
-            # if len(useful_measurements) > 0 and self.resampled:  # perform resampling on the particles
-            #     self.outer_instance.particles.update(useful_measurements_dict)
-            #     self.resampled = False
-
-            # if len(self.seen_landmarks) >= 2:
-            #     self.outer_instance.particles.update(useful_measurements_dict)
-
-            # if self.current_command.finished:
-            #     self.current_command = next(self.queue)
-
+            if len(self.seen_landmarks) >= 2:
+                self.outer_instance.particles.update(useful_measurements_dict)
 
             if self.current_command.finished:
                 self.current_command = next(self.queue)
-                self.rotated_times += 1
-
-            # RIP DET HER HAHA
-            if self.rotated_times >= 16: #and math_utils.angle_between_two_points(self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY(), self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]][0], self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]][1]) < 0.1:
-                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
-                x1, y1 = self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY()
-                x2, y2 = self.outer_instance.landmarks[self.outer_instance.goal_order[self.outer_instance.current_goal]][0], self.outer_instance.landmarks[self.outer_instance.goal_order[self.outer_instance.current_goal]][1]
-                delta_x = x2 - x1
-                delta_y = y2 - y1
-                
-                togoal_theta = np.arctan2(delta_y, delta_x)
-                if togoal_theta < 0:
-                    togoal_theta += 2 * np.pi
-                est_theta = self.outer_instance.est_pos.getTheta()
-                if est_theta < togoal_theta + 0.3 and est_theta > togoal_theta - 0.3:
-                    print("Pray to jesus that this is the correct route")
-                    self.outer_instance.set_state(RobotState.moving)
 
             self.current_command.run_command()
 
@@ -220,7 +174,6 @@ class State:
                 print("No route found")
                 
 
-
     class Moving:
         def __init__(self, outer_instance: "State") -> None:
             self.cam: camera.Camera = outer_instance.cam
@@ -229,39 +182,40 @@ class State:
 
         def initialize(self):
             if command.too_close(self.left, self.right, self.front):
-                self.outer_instance.set_state(RobotState.avoidance)
+                self.outer_instance.set_state(RobotState.avoidance, sonars=(self.left, self.front, self.right))
+                return
             else:
                 self.current_command = command.Straight(self.outer_instance.arlo, 50, self.outer_instance.particles)
-            self.startTime = time.time()
+                self.current_command.run_command()
+            self.outer_instance.set_state(RobotState.lost)
 
         def update(self):
             if command.too_close(self.left, self.right, self.front):
-                self.outer_instance.set_state(RobotState.avoidance)
-
-            if time.time() - self.startTime >= 2:                 
-                 self.outer_instance.set_state(RobotState.lost)
-
-            
+                self.outer_instance.set_state(RobotState.avoidance, sonars=(self.left, self.front, self.right))
+                return
 
     class Avoidance:
         def __init__(self, outer_instance: "State") -> None:
             self.cam: camera.Camera = outer_instance.cam
             self.outer_instance = outer_instance
+
             self.initialize()
 
         def initialize(self):
             command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)
 
+
         def update(self):
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
 
-            if self.left > 10 and self.right > 10 and self.front > 200:
+            if self.left > 30 and self.right > 30 and self.front > 200:
                 self.outer_instance.set_state(RobotState.moving)
+                return
 
             if self.right > self.left:
-                command.Rotate(self.outer_instance.arlo, 0.5, self.outer_instance.particles)
+                command.Rotate(self.outer_instance.arlo, -np.pi / 4, self.outer_instance.particles)
             else:
-                command.Rotate(self.outer_instance.arlo, -0.5, self.outer_instance.particles)
+                command.Rotate(self.outer_instance.arlo, np.pi / 4, self.outer_instance.particles)
 
 
     def set_state(self, state: RobotState, **kwargs):
@@ -296,6 +250,7 @@ if __name__ == "__main__":
     state = State()
     try:
         while True:
+            print("State: ", state.state)
             action = cv2.waitKey(10)
             if action == ord("q"):
                 break
