@@ -158,7 +158,7 @@ class State:
                 )
                 self.outer_instance.est_pos.getPos()
                 # find angle to target
-                _, togoal_theta = math_utils.polar_diff(
+                togoal_dist, togoal_theta = math_utils.polar_diff(
                     self.outer_instance.est_pos.getPos(),
                     self.outer_instance.est_pos.getTheta(),
                     self.outer_instance.landmarks[
@@ -175,7 +175,9 @@ class State:
                     self.outer_instance.current_goal += 1
                 else:
                     print("Found target, but too far away. Moving to target")
-                    self.outer_instance.set_state(RobotState.moving, togoal_theta=togoal_theta)
+                    self.outer_instance.set_state(
+                        RobotState.moving, togoal_dist=togoal_dist / 2, togoal_theta=togoal_theta
+                    )
 
             if len(self.measurements) == 1:
                 if self.initial_resample:
@@ -262,16 +264,19 @@ class State:
             self.outer_instance = outer_instance
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
 
-        def initialize(self, togoal_theta):
+        def initialize(self, togoal_theta=0, togoal_dist=-10):
             print("moving")
 
             self.togoal_theta = togoal_theta
+            self.togoal_dist = togoal_dist
 
             def gen_command():
                 yield command.Rotate(
                     self.outer_instance.arlo, self.togoal_theta, self.outer_instance.particles
                 )
-                yield command.Straight(self.outer_instance.arlo, 20, self.outer_instance.particles)
+                yield command.Straight(
+                    self.outer_instance.arlo, togoal_dist, self.outer_instance.particles
+                )
 
             self.commands = iter(gen_command())
             self.current_command = next(self.commands)
