@@ -143,6 +143,16 @@ class State:
             #     if self.measurements[target_id][0] > 80:
             #         self.outer_instance.set_state(RobotState.moving, togoal_theta=0)
 
+            if len(self.measurements) == 1:
+                if self.initial_resample:
+                    self.outer_instance.particles.update(self.measurements)
+                    self.initial_resample = False
+                    self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+
+            if len(self.measurements) >= 2:
+                self.outer_instance.particles.update(self.measurements)
+                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+
             if (
                 self.outer_instance.est_pos is not None
                 and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
@@ -173,27 +183,19 @@ class State:
                         self.outer_instance.goal_order[self.outer_instance.current_goal + 1],
                     )
                     self.outer_instance.current_goal += 1
-                elif dist < 200:
-                    self.current_command = command.Approach(
-                        self.outer_instance.landmarks[
-                            self.outer_instance.goal_order[self.outer_instance.current_goal]
-                        ],
-                        self.outer_instance.arlo,
-                        self.outer_instance.particles,
-                    )
+                # elif dist < 200:
+                #     self.current_command = command.Approach(
+                #         self.outer_instance.landmarks[
+                #             self.outer_instance.goal_order[self.outer_instance.current_goal]
+                #         ],
+                #         self.outer_instance.arlo,
+                #         self.outer_instance.particles,
+                #     )
                 else:
                     print("Found target, but too far away. Moving to target")
                     self.outer_instance.set_state(
                         RobotState.moving, togoal_dist=togoal_dist / 2, togoal_theta=togoal_theta
                     )
-
-            if len(self.measurements) == 1:
-                if self.initial_resample:
-                    self.outer_instance.particles.update(self.measurements)
-                    self.initial_resample = False
-
-            if len(self.measurements) >= 2:
-                self.outer_instance.particles.update(self.measurements)
 
             if self.current_command.finished:
                 self.current_command = next(self.queue)
