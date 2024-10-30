@@ -118,17 +118,23 @@ class Constants:
         interactive_backend = "Qt5Agg"
 
     class World:
+        # landmarks = {
+        #     # TODO: Change
+        #     1: (0.0, 0.0),
+        #     2: (0.0, 300.0),
+        #     3: (400.0, 0.0),
+        #     4: (400.0, 300.0),
+        # }
+
         landmarks = {
             # TODO: Change
-            1: (0.0, 0.0),
-            2: (0.0, 300.0),
-            3: (400.0, 0.0),
-            4: (400.0, 300.0),
+            5: (0.0, 0.0),
+            8: (0.0, 300.0),
         }
         landmarkIDs = list(landmarks)
         goals = [np.array(pos) for id, pos in landmarks.items()]
 
-        goal_order = [1, 1, 1, 0]
+        goal_order = [5, 8, 5, 0]
 
         num_particles = 600
         running_on_arlo = "PICAM" in os.environ
