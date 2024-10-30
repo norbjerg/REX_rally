@@ -141,8 +141,6 @@ class State:
                 if dist < 60:
                     print("Found target reached. Moving to next target")
                     self.outer_instance.current_goal += 1
-                else:
-                    self.outer_instance.set_state(RobotState.moving)
 
             if len(self.measurements) == 1 and self.initial_resample:
                 self.outer_instance.particles.update(self.measurements)
@@ -158,7 +156,6 @@ class State:
                 self.current_command = next(self.queue)
                 self.rotated_times += 1
 
-            # RIP DET HER HAHA
             if self.rotated_times >= np.deg2rad(360) // self.rotate_amount:
                 self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
                 x1, y1 = self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY()
