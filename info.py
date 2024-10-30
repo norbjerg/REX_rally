@@ -122,7 +122,8 @@ class Info:
         # Show frame
         if Constants.PID.ENABLE_GUI:
             if Constants.PID.ENABLE_PREVIEW:
-                cv2.imshow(self.WIN_RF1, colour)
+                resized = cv2.resize(colour, (1640 // 2, 1232 // 2), interpolation=cv2.INTER_AREA)
+                cv2.imshow(self.WIN_RF1, resized)
 
             # Show world
             cv2.imshow(self.WIN_World, self.world)
