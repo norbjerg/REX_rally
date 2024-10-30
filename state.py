@@ -112,9 +112,6 @@ class State:
             objectIDs, dists, angles = self.cam.detect_aruco_objects(
                 self.outer_instance.colour
             )  # Detect objects
-            self.outer_instance.particles.add_uncertainty(
-                Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE
-            )
             target_id = self.outer_instance.goal_order[self.outer_instance.current_goal]
             if target_id == -1:
                 print("Finished all targets. Stopping")
