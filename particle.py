@@ -172,7 +172,7 @@ class ParticlesWrapper:
             deltaXY = heading * distance
 
             # do the update
-            parti.move_particle(deltaXY[0], deltaXY[1], -angle)
+            parti.move_particle(deltaXY[0], deltaXY[1], angle)
         # print("moved particles", distance, angle)
 
     def resample_particles(self):
