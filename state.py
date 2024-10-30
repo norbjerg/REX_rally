@@ -140,6 +140,7 @@ class State:
                 self.outer_instance.est_pos is not None
                 and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
             ):
+                print("Low variance found")
                 dist = np.linalg.norm(
                     self.outer_instance.est_pos.getPos()
                     - np.array(
