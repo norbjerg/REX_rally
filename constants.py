@@ -147,7 +147,7 @@ class Constants:
         threshold_outside = 150
 
         # goal_order = [5, 8, 5, -1]
-        goal_order = [1, 2, 3,, 4, -1]
+        goal_order = [1, 2, 3, 4, -1]
 
         num_particles = 600
         running_on_arlo = "PICAM" in os.environ
