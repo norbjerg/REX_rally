@@ -95,7 +95,7 @@ class State:
 
             def gen_command():
                 while True:
-                    yield command.Wait(self.arlo, 2, self.outer_instance.particles)
+                    yield command.Wait(self.arlo, 1, self.outer_instance.particles)
                     yield command.Rotate(
                         self.arlo, self.rotate_amount, self.outer_instance.particles
                     )
@@ -161,9 +161,7 @@ class State:
                     print("Found target, but too far away. Moving to target")
                     self.outer_instance.set_state(RobotState.moving)
 
-            if len(self.measurements) == 1 and self.initial_resample:
-                self.outer_instance.particles.update(self.measurements)
-                self.initial_resample = True
+            self.outer_instance.particles.update(self.measurements)
 
             if self.current_command.finished:
                 self.current_command = next(self.queue)
