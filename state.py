@@ -135,6 +135,10 @@ class State:
                 if self.measurements[target_id][0] > 80:
                     self.outer_instance.set_state(RobotState.moving)
 
+            if len(self.measurements) > 0:
+                self.outer_instance.particles.update(self.measurements)
+                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+
             if (
                 self.outer_instance.est_pos is not None
                 and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
@@ -152,14 +156,12 @@ class State:
                 if dist < 130:
                     print(
                         "Found target reached. Moving to next target",
-                        self.outer_instance.goal_order[self.outer_instance.current_goal],
+                        self.outer_instance.goal_order[self.outer_instance.current_goal + 1],
                     )
                     self.outer_instance.current_goal += 1
                 else:
                     print("Found target, but too far away. Moving to target")
                     self.outer_instance.set_state(RobotState.moving)
-
-            self.outer_instance.particles.update(self.measurements)
 
             if self.current_command.finished:
                 self.current_command = next(self.queue)
