@@ -180,7 +180,7 @@ class Approach(Command):
         _l_sonar, f_sonar, _r_sonar = self.sonars 
         if self.finished:
             return
-        if f_sonar < 50:
+        if f_sonar < 100:
             print("stopping in approach")
             self.finished = True
             self.robot.stop()
