@@ -152,9 +152,7 @@ class State:
                 if dist < 120:
                     print(
                         "Found target reached. Moving to next target",
-                        self.outer_instance.landmarks[
-                            self.outer_instance.goal_order[self.outer_instance.current_goal]
-                        ],
+                        self.outer_instance.goal_order[self.outer_instance.current_goal],
                     )
                     self.outer_instance.current_goal += 1
                 else:
