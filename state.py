@@ -129,6 +129,11 @@ class State:
                     # measurements.setdefault(objectID, (np.inf, np.inf))
                     self.measurements[objectID] = (dist, angle)
 
+            if target_id in self.measurements:
+                print("Found target")
+                if self.measurements[target_id][0] > 80:
+                    self.outer_instance.set_state(RobotState.moving)
+
             if self.outer_instance.est_pos is not None:
                 dist = np.linalg.norm(
                     self.outer_instance.est_pos.getPos()
