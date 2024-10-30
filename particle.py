@@ -177,8 +177,14 @@ class ParticlesWrapper:
 
     def resample_particles(self):
         pmf = np.zeros(self.num_particles, dtype=np.float64)
+        if not self.particles:
+            return
+
         for i, p in enumerate(self.particles):
             pmf[i] = p.getWeight()
+            if pmf[i] == 0 or np.isnan(pmf[i]):
+                print(pmf[i])
+
         # choice as indexes:
         choices = self.rng.choice(self.num_particles, size=self.num_particles, p=pmf)
         self.particles = [copy(self.particles[choice]) for choice in choices]
