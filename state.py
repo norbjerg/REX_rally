@@ -283,15 +283,6 @@ class State:
             self.current_command = next(self.commands)
 
         def update(self):
-            self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
-
-            # if command.too_close(self.left, self.right, self.front):
-            #     self.outer_instance.set_state(RobotState.avoidance)
-            #     return
-
-            self.current_command = command.Straight(
-                self.outer_instance.arlo, 0, self.outer_instance.particles
-            )
             if self.current_command.finished:
                 self.outer_instance.set_state(RobotState.lost)
 
