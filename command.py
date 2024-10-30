@@ -180,13 +180,12 @@ class Approach(Command):
         self.avoidance_mode = self.current_command.avoidance_mode
         self.check_sensors()
 
-        _l, f, _r = self.sonars 
+        _l_sonar, f_sonar, _r_sonar = self.sonars 
         if self.finished:
             return
-        if f < 5:
+        if f < 50:
             print("stopping in approach")
             self.robot.stop()
-            self.finished = True
             return 
         if self.current_command.finished:
             self.plan_index += 1
