@@ -160,14 +160,11 @@ class Approach(Command):
     def __init__(self, landmark_pos, robot, particles):
         super().__init__(robot, particles)
         est_pos = particles.estimate_pose()
-        dist, angle = math_utils.polar_diff(est_pos.getPos(), est_pos.getTheta(), landmark_pos)
+        # dist, angle = math_utils.polar_diff(est_pos.getPos(), est_pos.getTheta(), landmark_pos)
         # approach command is actually an infinite list of commands
-        self.sub_plan = ([Rotate(robot, angle, particles)] +
-            [Straight(robot, 10, particles) for _ in range(200)] 
-        )
+        self.sub_plan = (Straight(robot, 10, particles) for _ in itertools.count())
         
-        self.plan_index = 0 
-        self.current_command = self.sub_plan[self.plan_index]
+        self.current_command = next(self.sub_plan)
         self.run_command()
         
 
@@ -176,20 +173,21 @@ class Approach(Command):
 
         # export for future use
         self.begun = self.current_command.begun
-        self.finished = self.current_command.finished
+        # self.finished = self.current_command.finished
         self.avoidance_mode = self.current_command.avoidance_mode
         self.check_sensors()
 
         _l_sonar, f_sonar, _r_sonar = self.sonars 
         if self.finished:
             return
-        if f < 50:
+        if f_sonar < 100:
             print("stopping in approach")
+            self.finished = True
             self.robot.stop()
             return 
         if self.current_command.finished:
-            self.plan_index += 1
-            self.current_command = self.sub_plan[self.plan_index]
+            self.current_command = next(self.sub_plan)
+            self.run_command()
 
 
 
