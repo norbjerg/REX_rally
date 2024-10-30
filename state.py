@@ -284,9 +284,15 @@ class State:
 
         def update(self):
             if self.current_command.finished:
-                self.outer_instance.set_state(RobotState.lost)
-
-            self.current_command.run_command()
+                next_command = next(self.commands, None)
+                if next_command is None:
+                    self.outer_instance.set_state(RobotState.lost)
+                    return
+                else:
+                    self.current_command = next_command
+                self.current_command.run_command()
+            else:
+                self.current_command.run_command()
 
     class Avoidance:
         def __init__(self, outer_instance: "State") -> None:
