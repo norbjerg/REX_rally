@@ -149,8 +149,13 @@ class State:
                     )
                 )
                 print("dist from target", dist)
-                if dist < 180:
-                    print("Found target reached. Moving to next target")
+                if dist < 120:
+                    print(
+                        "Found target reached. Moving to next target",
+                        self.outer_instance.landmarks[
+                            self.outer_instance.goal_order[self.outer_instance.current_goal]
+                        ],
+                    )
                     self.outer_instance.current_goal += 1
                 else:
                     print("Found target, but too far away. Moving to target")
@@ -159,12 +164,6 @@ class State:
             if len(self.measurements) == 1 and self.initial_resample:
                 self.outer_instance.particles.update(self.measurements)
                 self.initial_resample = True
-
-            if len(self.measurements) >= 2:
-                self.outer_instance.particles.update(self.measurements)
-                self.initial_resample = True
-                self.measurements = dict()
-                self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
 
             if self.current_command.finished:
                 self.current_command = next(self.queue)
@@ -325,6 +324,7 @@ class State:
     def update(self):
         self.show_gui()
         self.current_state.update()
+        self.est_pos = self.particles.estimate_pose()
 
 
 if __name__ == "__main__":
