@@ -153,7 +153,7 @@ class State:
                     )
                 )
                 print("dist from target", dist)
-                if dist < 180:
+                if dist < 100:
                     print(
                         "Found target reached. Moving to next target",
                         self.outer_instance.goal_order[self.outer_instance.current_goal + 1],
