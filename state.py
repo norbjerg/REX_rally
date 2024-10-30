@@ -91,6 +91,7 @@ class State:
             self.initialize()
 
         def initialize(self) -> None:
+            print("lost")
             def gen_command():
                 while True:
                     yield command.Wait(self.arlo, 2, self.outer_instance.particles)
@@ -192,6 +193,7 @@ class State:
             self.initialize()
 
         def initialize(self):
+            print("checking")
             self.goal = self.outer_instance.goals[
                 self.outer_instance.goal_order[self.outer_instance.current_goal]
             ]
@@ -233,6 +235,7 @@ class State:
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
 
         def initialize(self):
+            print("moving")
             if command.too_close(self.left, self.right, self.front):
                 self.current_command.robot.stop()
                 self.outer_instance.set_state(RobotState.avoidance)
@@ -260,6 +263,7 @@ class State:
             self.initialize()
 
         def initialize(self):
+            print("avoidance")
             command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)
 
         def update(self):
@@ -267,6 +271,8 @@ class State:
 
             if self.left > 10 and self.right > 10 and self.front > 200:
                 self.outer_instance.set_state(RobotState.moving)
+            else:
+                self.outer_instance.set_state(RobotState.lost)
 
             if self.right > self.left:
                 command.Rotate(self.outer_instance.arlo, 0.5, self.outer_instance.particles)
@@ -295,6 +301,9 @@ class State:
     @property
     def avoidance(self):
         return self._avoidance if self.state == RobotState.avoidance else None
+
+    def next_target(self):
+        self.current_goal += 1
 
     def update(self):
         self.show_gui()
