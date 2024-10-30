@@ -162,9 +162,7 @@ class Approach(Command):
         est_pos = particles.estimate_pose()
         dist, angle = math_utils.polar_diff(est_pos.getPos(), est_pos.getTheta(), landmark_pos)
         # approach command is actually an infinite list of commands
-        self.sub_plan = itertools.chain([Rotate(robot, angle, particles)], 
-        (Straight(robot, 10, particles) for _ in itertools.count())
-        )
+        self.sub_plan = (Straight(robot, 10, particles) for _ in itertools.count())
         
         self.current_command = next(self.sub_plan)
         self.run_command()
