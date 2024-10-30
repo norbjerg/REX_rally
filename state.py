@@ -100,7 +100,6 @@ class State:
                         self.arlo, self.rotate_amount, self.outer_instance.particles
                     )
 
-            self.outer_instance.reset_particles()
             self.queue = iter(gen_command())
             self.current_command = next(self.queue)
             self.current_command.run_command()
