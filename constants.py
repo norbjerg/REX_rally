@@ -95,7 +95,7 @@ class Constants:
                 [0, FOCALLENGTH, SCREEN_RESOLUTION[1] / 2],
                 [0, 0, 1],
             ],
-            dtype=float,
+            dtype=np.float64,
         )
         PREVIEW_DOWNSCALE = 0
         PREVIEW_DIMENSIONS = (
