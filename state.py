@@ -173,6 +173,14 @@ class State:
                         self.outer_instance.goal_order[self.outer_instance.current_goal + 1],
                     )
                     self.outer_instance.current_goal += 1
+                elif dist < 200:
+                    self.current_command = command.Approach(
+                        self.outer_instance.landmarks[
+                            self.outer_instance.goal_order[self.outer_instance.current_goal]
+                        ],
+                        self.outer_instance.arlo,
+                        self.outer_instance.particles,
+                    )
                 else:
                     print("Found target, but too far away. Moving to target")
                     self.outer_instance.set_state(
