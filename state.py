@@ -143,7 +143,6 @@ class State:
             #     if self.measurements[target_id][0] > 80:
             #         self.outer_instance.set_state(RobotState.moving, togoal_theta=0)
 
-
             if (
                 self.outer_instance.est_pos is not None
                 and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
@@ -174,7 +173,7 @@ class State:
                 togoal_theta = np.arctan2(delta_y, delta_x)
 
                 print("dist from target", dist)
-                if dist < 120:
+                if dist < 80:
                     print(
                         "Found target reached. Moving to next target",
                         self.outer_instance.goal_order[self.outer_instance.current_goal + 1],
