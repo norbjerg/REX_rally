@@ -60,16 +60,16 @@ class Command(ABC):
             return
 
         if self.start_time is None:
-            self.particles.move_particles(self.dist, self.angle)
-            self.particles.add_uncertainty(
-                Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE
-            )
             self.start_time = time.time()
             self.robot.go_diff(self.power, self.power, *self.mov_dirs)
             self.begun = True
 
         elif time.time() - self.start_time >= self.command_time:
             self.robot.stop()
+            self.particles.move_particles(self.dist, self.angle)
+            self.particles.add_uncertainty(
+                Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE
+            )
             self.finished = True
 
     def check_sensors(self):
