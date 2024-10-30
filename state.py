@@ -157,7 +157,7 @@ class State:
 
             if len(self.measurements) == 1 and self.initial_resample:
                 self.outer_instance.particles.update(self.measurements)
-                self.initial_resample = False
+                self.initial_resample = True
 
             if len(self.measurements) >= 2:
                 self.outer_instance.particles.update(self.measurements)

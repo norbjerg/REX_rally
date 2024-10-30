@@ -3,6 +3,7 @@ import time
 from abc import ABC
 
 import numpy as np
+
 from constants import Constants
 from particle import Particle, ParticlesWrapper
 
@@ -41,7 +42,6 @@ class Command(ABC):
         self.avoidance_mode = False
         self.sonars = None
 
-
     def run_command(self):
         if self.robot.isArlo and self.dist > 0 and not self.finished:
             left, front, right = self.robot.read_sonars()
@@ -50,22 +50,24 @@ class Command(ABC):
                 self.avoidance_mode = True
                 self.sonars = (left, front, right)
                 return
-        
+
         if self.finished is True:
             return
-        
+
         if self.start_time is None and self.command_time == 0:
             self.finished = True
             self.begun = True
             return
-        
+
         if self.start_time is None:
             self.particles.move_particles(self.dist, self.angle)
-            self.particles.add_uncertainty(Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE)
+            self.particles.add_uncertainty(
+                Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE
+            )
             self.start_time = time.time()
             self.robot.go_diff(self.power, self.power, *self.mov_dirs)
             self.begun = True
-        
+
         elif time.time() - self.start_time >= self.command_time:
             self.robot.stop()
             self.finished = True
@@ -92,9 +94,13 @@ class ControlWrapper:
 
     def read_sonars(self):
         if self.isArlo:
-            return (self.robot.read_left_ping_sensor(), self.robot.read_front_ping_sensor(), self.robot.read_right_ping_sensor())
+            return (
+                self.robot.read_left_ping_sensor(),
+                self.robot.read_front_ping_sensor(),
+                self.robot.read_right_ping_sensor(),
+            )
         else:
-            return (0,0,0)
+            return (0, 0, 0)
 
 
 # TODO: Make command abstract + implement angle handling from calibrate.py
@@ -110,8 +116,8 @@ class Rotate(Command):
         angle = delta_angle
         if angle < 0:
             self.mov_dirs = self.mov_dirs[1], self.mov_dirs[0]
-        if angle > 2*np.pi or angle <= -2*np.pi:
-            angle %= 2*np.pi
+        if angle > 2 * np.pi or angle <= -2 * np.pi:
+            angle %= 2 * np.pi
         if angle > np.pi:
             angle -= np.pi
             angle = -angle
@@ -121,8 +127,6 @@ class Rotate(Command):
         self.angle = angle
 
         self.command_time = abs(angle) / ROTATIONAL_SPEED
-
-        
 
 
 class Straight(Command):
@@ -138,10 +142,10 @@ class Straight(Command):
         self.dist = distance
         self.command_time = abs(distance) / FORWARD_SPEED
 
+
 def too_close(left, right, front):
-    if front < 20 or left < 20 or right < 20:
-        return True
-    return False
+    return front < 200 or left < 200 or right < 200
+
 
 class Wait(Command):
     def __init__(self, robot, grace_time, particles=None) -> None:
@@ -160,7 +164,7 @@ if __name__ == "__main__":
     queue.append(Wait(arlo, 5))
     queue.append(Straight(arlo, -100))
     queue.append(Rotate(arlo, -np.deg2rad(90)))
-    
+
     while len(queue) > 0:
         command = queue.pop(0)
         command.run_command()
