@@ -112,10 +112,13 @@ class State:
             objectIDs, dists, angles = self.cam.detect_aruco_objects(
                 self.outer_instance.colour
             )  # Detect objects
+
             self.outer_instance.particles.add_uncertainty(
                 Constants.Robot.DISTANCE_NOISE, Constants.Robot.ANGULAR_NOISE
             )
+
             target_id = self.outer_instance.goal_order[self.outer_instance.current_goal]
+            
             if target_id == -1:
                 print("Finished all targets. Stopping")
                 command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)
@@ -131,35 +134,60 @@ class State:
                     self.measurements[objectID] = (dist, angle)
 
             if target_id in self.measurements:
-                print("Found target")
                 if self.measurements[target_id][0] > 80:
                     self.outer_instance.set_state(RobotState.moving)
 
-            if (
-                self.outer_instance.est_pos is not None
-                and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
-            ):
-                print("Low variance found")
-                dist = np.linalg.norm(
-                    self.outer_instance.est_pos.getPos()
-                    - np.array(
-                        self.outer_instance.landmarks[
-                            self.outer_instance.goal_order[self.outer_instance.current_goal]
-                        ]
+                if (
+                    self.outer_instance.est_pos is not None
+                    and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
+                ):
+                    print("Low variance found")
+                    dist = np.linalg.norm(
+                        self.outer_instance.est_pos.getPos()
+                        - np.array(
+                            self.outer_instance.landmarks[
+                                self.outer_instance.goal_order[self.outer_instance.current_goal]
+                            ]
+                        )
                     )
-                )
-                print("dist from target", dist)
-                if dist < 130:
-                    print(
-                        "Found target reached. Moving to next target",
-                        self.outer_instance.goal_order[self.outer_instance.current_goal],
-                    )
-                    self.outer_instance.current_goal += 1
-                else:
-                    print("Found target, but too far away. Moving to target")
-                    self.outer_instance.set_state(RobotState.moving)
+                    print("dist from target", dist)
 
-            self.outer_instance.particles.update(self.measurements)
+                    if dist < 130:
+                        print(
+                            "Found target reached. Moving to next target",
+                            self.outer_instance.goal_order[self.outer_instance.current_goal],
+                        )
+                        self.outer_instance.current_goal += 1
+                    else:
+                        self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+                        x1, y1 = self.outer_instance.est_pos.getX(), self.outer_instance.est_pos.getY()
+                        x2, y2 = (
+                            self.outer_instance.landmarks[
+                                self.outer_instance.goal_order[self.outer_instance.current_goal]
+                            ][0],
+                            self.outer_instance.landmarks[
+                                self.outer_instance.goal_order[self.outer_instance.current_goal]
+                            ][1],
+                        )
+                        delta_x = x2 - x1
+                        delta_y = y2 - y1
+
+                        togoal_theta = np.arctan2(delta_y, delta_x)
+                        if togoal_theta < 0:
+                            togoal_theta += 2 * np.pi
+                        
+                        est_theta = self.outer_instance.est_pos.getTheta()
+                        if est_theta < togoal_theta + 0.3 and est_theta > togoal_theta - 0.3:
+                            print("Found target, but too far away. Moving to target")
+                            self.outer_instance.set_state(RobotState.moving)
+
+            if len(self.measurements) == 1:
+                if self.initial_resample:
+                    self.outer_instance.particles.update(self.measurements)
+                    self.initial_resample = False
+            
+            if len(self.measurements) >= 2:
+                self.outer_instance.particles.update(self.measurements)
 
             if self.current_command.finished:
                 self.current_command = next(self.queue)
@@ -182,6 +210,7 @@ class State:
                 togoal_theta = np.arctan2(delta_y, delta_x)
                 if togoal_theta < 0:
                     togoal_theta += 2 * np.pi
+                
                 est_theta = self.outer_instance.est_pos.getTheta()
                 if est_theta < togoal_theta + 0.3 and est_theta > togoal_theta - 0.3:
                     print("Rotated fully, trying to move randomly")
@@ -239,20 +268,24 @@ class State:
 
         def initialize(self):
             print("moving")
-            self.current_command = command.Straight(
-                self.outer_instance.arlo, 20, self.outer_instance.particles
-            )
-            self.startTime = time.time()
+            self.startTime = None
 
         def update(self):
-            self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
-            if command.too_close(self.left, self.right, self.front):
-                self.outer_instance.set_state(RobotState.avoidance)
-                return
+            # self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
+            # if command.too_close(self.left, self.right, self.front):
+            #     self.outer_instance.set_state(RobotState.avoidance)
+            #     return
 
-            if time.time() - self.startTime >= 2:
+            self.startTime = time.time() if self.startTime is None else self.startTime
+            if time.time() - self.startTime >= 1:
                 self.outer_instance.set_state(RobotState.lost)
                 return
+            
+            self.current_command = command.Straight(
+                    self.outer_instance.arlo, 0, self.outer_instance.particles
+            )
+            if self.current_command.finished:
+                self.current_command = next(self.queue)
 
             self.current_command.run_command()
 
@@ -314,6 +347,7 @@ class State:
         self.show_gui()
         self.current_state.update()
         self.est_pos = self.particles.estimate_pose()
+
 
 
 if __name__ == "__main__":

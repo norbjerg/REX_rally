@@ -55,7 +55,7 @@ class Constants:
         QUARTER_TURN_64 = 0.725  # sleep
         FORWARD_SPEED = 100 / 2.7  # cm/s
         ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
-        DISTANCE_NOISE = 1  # cm
+        DISTANCE_NOISE = 1 # cm
         ANGULAR_NOISE = 0.1  # rad
         CTRL_RANGE = [-20, 20]  # cm
 
@@ -130,7 +130,7 @@ class Constants:
             1: (0.0, 0.0),
             2: (0.0, 200.0),
             3: (200.0, 0.0),
-            4: (200.0, 200.0),
+            # 4: (200.0, 200.0),
         }
 
         # landmarks = {
@@ -144,7 +144,7 @@ class Constants:
         goals = [np.array(pos) for id, pos in landmarks.items()]
 
         # goal_order = [5, 8, 5, -1]
-        goal_order = [1, 2, 3, 4, 1, -1]
+        goal_order = [1, 3, 2, -1]
 
         num_particles = 600
         running_on_arlo = "PICAM" in os.environ
