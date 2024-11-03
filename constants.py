@@ -133,7 +133,7 @@ class Constants:
         threshold_outside = 40
 
         goal_order = [1, 2, 3, 4, 1, -1]
-        num_particles = 1000
+        num_particles = 400
         running_on_arlo = "PICAM" in os.environ
         draw_particles = True
 
