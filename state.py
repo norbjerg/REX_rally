@@ -170,7 +170,7 @@ class State:
             # Shortcut: Saw target earlier, but lost it
             if (
                 target_id in self.measurements
-                or self.outer_instance.particles.check_est_pose_variance(self.outer_instance.est_pos)
+                or self.outer_instance.particles.check_est_pose_variance(self.outer_instance.est_pos, 10)
             ):
                 currentX_pos, currentY_pos = self.outer_instance.est_pos.getPos()
                 targetX_pos, targetY_pos = self.outer_instance.landmarks[
@@ -188,14 +188,14 @@ class State:
                     return
 
                 # If it were to far we rotate the robot to find it again
-                angle = math_utils.angle_diff(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
-                if (
-                    angle < self.outer_instance.est_pos.getTheta() + 0.3
-                    and angle > self.outer_instance.est_pos.getTheta() - 0.3
-                ):
-                    self.outer_instance.particles_reset = True
-                    self.outer_instance.set_state(RobotState.moving)
-                    return
+                # angle = math_utils.angle_diff(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
+                # if (
+                #     angle < self.outer_instance.est_pos.getTheta() + 0.3
+                #     and angle > self.outer_instance.est_pos.getTheta() - 0.3
+                # ):
+                #     self.outer_instance.particles_reset = True
+                #     self.outer_instance.set_state(RobotState.moving)
+                #     return
 
             if (len(self.measurements) >= 2):
                 print("seen two landmarks Trying to adjust toward goal")
