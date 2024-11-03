@@ -379,29 +379,19 @@ class Camera(object):
             ids = None
             angles = None
         return ids, dists, angles
-        
-    def detect_aruco_objects(self, img):
-            # Detect ArUco objects and get their IDs, distances, and angles
-            ids, dists, angles = self._detect_aruco_objects(img)
-            if ids is None:
-                return (None, None, None)
-            
-            r = Constants.Robot.RADIUS * 10  # Convert radius to the same unit as distances
-            # Calculate the new positions relative to the robot's center
-            Lx = r + dists * np.cos(angles)  # X position
-            Ly = dists * np.sin(angles)       # Y position
-            
-            # Calculate the new distances from the robot's center
-            dists_new = np.sqrt(Lx**2 + Ly**2)
-            
-            # Calculate the new angles with respect to the robot's center
-            angles_new = np.arctan2(Ly, Lx)   # Angle with respect to robot's center
-            
-            # Debug output to see the differences
-            print(f"dists diff: {(dists_new, dists)}, angle diff: {angles, angles_new}")
-            
-            return ids, dists_new, angles_new
 
+
+    def detect_aruco_objects(self, img):
+        ids, dists, angles = self._detect_aruco_objects(img)
+        if ids is None:
+            return (None, None, None)
+        r = Constants.Robot.RADIUS
+        Lx = r + dists * np.cos(angles)
+        Ly = dists * np.sin(angles)
+        dists_new = np.sqrt(Lx**2 + Ly**2)
+        angles_new = np.arctan2(Ly, Lx)
+        print(f"dists diff: {(dists_new, dists)}, angle diff: {angles, angles_new}")
+        return ids, dists_new, angles_new
 
 
     def _draw_aruco_objects(self, img):
