@@ -135,8 +135,8 @@ class Camera(object):
 
         # Set camera calibration info
         if robottype == 'arlo':
-            self.imageSize = (1280, 720)
-            # self.imageSize = (1640, 1232)
+            # self.imageSize = (1280, 720)
+            self.imageSize = (1640, 1232)
             #self.intrinsic_matrix = np.asarray([ 7.1305391967046853e+02, 0., 3.1172820723774367e+02, 0.,
             #       7.0564929862291285e+02, 2.5634470978315028e+02, 0., 0., 1. ], dtype = np.float64)
             #self.intrinsic_matrix = np.asarray([ 6.0727040957659040e+02, 0., 3.0757300398967601e+02, 0.,

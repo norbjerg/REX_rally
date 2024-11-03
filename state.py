@@ -39,6 +39,7 @@ class State:
         self.current_goal = 0
 
         if self.on_arlo:
+            print("Im Arlo!")
             self._cam = camera.Camera(0, robottype="arlo", useCaptureThread=True)
         else:
             self._cam = camera.Camera(0, robottype="macbookpro", useCaptureThread=True)
