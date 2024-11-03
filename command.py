@@ -113,7 +113,7 @@ class Rotate(Command):
         super().__init__(robot, particles)
         self.start_time = None
         self.finished = False
-        self.mov_dirs = (1, 0)
+        self.mov_dirs = (0, 1)
         self.power = 32
         angle = delta_angle
         if angle < 0:
