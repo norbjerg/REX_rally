@@ -286,7 +286,7 @@ class State:
             def gen_command():
                 while 1:
                     yield command.Straight(
-                        self.outer_instance.arlo, 50, self.outer_instance.particles
+                        self.outer_instance.arlo, 75, self.outer_instance.particles
                     )
 
             self.commands = iter(gen_command())
