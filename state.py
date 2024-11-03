@@ -261,7 +261,7 @@ class State:
             def gen_command():
                 while 1:
                     yield command.Straight(
-                        self.outer_instance.arlo, 75, self.outer_instance.particles
+                        self.outer_instance.arlo, 30, self.outer_instance.particles
                     )
 
             self.commands = iter(gen_command())
@@ -295,6 +295,7 @@ class State:
                 self.outer_instance.particles_reset = False
                 self.outer_instance.current_goal += 1
                 self.outer_instance.set_state(RobotState.lost)
+                self.current_command.robot.stop()
                 return
 
             if self.current_command.finished:
