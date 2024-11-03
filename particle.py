@@ -177,7 +177,6 @@ class ParticlesWrapper:
             particle.theta = np.mod(particle.theta + rn.randn(0.0, sigma_theta), 2.0 * np.pi)
 
     def move_particles(self, distance: float, angle: float):
-        distance *= 1.2
         for parti in self.particles:
             theta = parti.getTheta()
             # unit vector pointing in the direction of the particle
