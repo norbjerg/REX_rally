@@ -55,8 +55,8 @@ class Constants:
         QUARTER_TURN_64 = 0.725  # sleep
         FORWARD_SPEED = 100 / 2.7  # cm/s
         ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
-        DISTANCE_NOISE = 5  # cm
-        ANGULAR_NOISE = 0.2  # rad
+        DISTANCE_NOISE = 1  # cm
+        ANGULAR_NOISE = 0.1  # rad
         CTRL_RANGE = [-20, 20]  # cm
 
     class Sensor:
@@ -130,7 +130,7 @@ class Constants:
         landmarkMax = (max([pos[0] for pos in goals]), max([pos[1] for pos in goals]))
         threshold_outside = 150
 
-        goal_order = [1, 2, 3, 4, -1]
+        goal_order = [1, 2, 3, 4, 1, -1]
         num_particles = 1000
         running_on_arlo = "PICAM" in os.environ
         draw_particles = True
