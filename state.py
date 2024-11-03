@@ -215,6 +215,7 @@ class State:
 
             # If we have rotated 360 degrees, takes takes from est_pos to goal
             if self.rotated_times >= np.deg2rad(360) // self.rotate_amount:
+                print("rotated 360 degrees")
                 currentX_pos, currentY_pos = self.outer_instance.est_pos.getPos()
                 targetX_pos, targetY_pos = self.outer_instance.landmarks[
                     self.outer_instance.goal_order[self.outer_instance.current_goal]
@@ -282,7 +283,7 @@ class State:
             def gen_command():
                 while 1:
                     yield command.Straight(
-                        self.outer_instance.arlo, 1, self.outer_instance.particles
+                        self.outer_instance.arlo, 10, self.outer_instance.particles
                     )
 
             self.commands = iter(gen_command())
