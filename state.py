@@ -80,8 +80,8 @@ class State:
         return self.colour
 
     def reset_particles(self):
-        old_particles = self.particles.particles[: len(self.particles.particles) // 2]
-        new_particles = particle.ParticlesWrapper(self.num_particles // 2, self.landmarks)
+        old_particles = self.particles.particles[: len(self.particles.particles) // (2/3)]
+        new_particles = particle.ParticlesWrapper(self.num_particles // 4, self.landmarks)
         new_particles.particles.extend(old_particles)
         self.particles = new_particles
         self.particles.num_particles = self.num_particles
