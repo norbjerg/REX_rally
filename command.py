@@ -136,7 +136,7 @@ class Straight(Command):
         super().__init__(robot, particles)
 
         self.mov_dirs = (1, 1)
-        self.power = 40
+        self.power = 55
 
         if distance < 0:
             self.mov_dirs = (0, 0)
