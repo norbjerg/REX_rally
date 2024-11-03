@@ -53,7 +53,7 @@ class Constants:
         WHEEL_DIAMETER = 155  # mm
         WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * 3.14  # cm
         QUARTER_TURN_64 = 0.725  # sleep
-        FORWARD_SPEED = 100 / 2.7  # cm/s
+        FORWARD_SPEED = 100 / 2.6  # cm/s
         #ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
         ROTATIONAL_SPEED = 0.60
         DISTANCE_NOISE = 1  # cm
