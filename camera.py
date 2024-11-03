@@ -382,7 +382,7 @@ class Camera(object):
 
 
     def detect_aruco_objects(self, img):
-        ids, dists, angles = _detect_aruco_objects()
+        ids, dists, angles = self._detect_aruco_objects()
         if ids is None:
             return (None, None, None)
         r = Constants.Robot.RADIUS*10
