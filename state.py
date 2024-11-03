@@ -186,8 +186,8 @@ class State:
                 # If it were to far we rotate the robot to find it again
                 angle = math_utils.angle_diff(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
                 if (
-                    angle < self.outer_instance.est_pos.getTheta() + 0.2
-                    and angle > self.outer_instance.est_pos.getTheta() - 0.2
+                    angle < self.outer_instance.est_pos.getTheta() + 0.3
+                    and angle > self.outer_instance.est_pos.getTheta() - 0.3
                 ):
                     self.outer_instance.particles_reset = True
                     self.outer_instance.set_state(RobotState.moving)
@@ -202,8 +202,8 @@ class State:
                 ]
                 angle = math_utils.angle_diff(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
                 if (
-                    angle < self.outer_instance.est_pos.getTheta() + 0.2
-                    and angle > self.outer_instance.est_pos.getTheta() - 0.2
+                    angle < self.outer_instance.est_pos.getTheta() + 0.3
+                    and angle > self.outer_instance.est_pos.getTheta() - 0.3
                 ):
                     self.outer_instance.particles_reset = True
                     self.outer_instance.set_state(RobotState.moving)
