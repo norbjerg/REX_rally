@@ -102,7 +102,7 @@ class Constants:
             SCREEN_RESOLUTION[0] // (2**PREVIEW_DOWNSCALE),
             SCREEN_RESOLUTION[1] // (2**PREVIEW_DOWNSCALE),
         )
-        ENABLE_PREVIEW = 0
+        ENABLE_PREVIEW = 1
         ENABLE_GUI = 1
         CAMERA_FPS = 24
         DRAW_PATH_BLOCKING = 1
@@ -131,7 +131,7 @@ class Constants:
         threshold_outside = 150
 
         goal_order = [1, 2, 3, 4, -1]
-        num_particles = 600
+        num_particles = 1000
         running_on_arlo = "PICAM" in os.environ
         draw_particles = True
 

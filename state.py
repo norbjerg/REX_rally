@@ -93,12 +93,11 @@ class State:
             self.cam: camera.Camera = outer_instance.cam
             self.arlo = outer_instance.arlo
             self.outer_instance = outer_instance
-            self.rotate_amount = np.deg2rad(15)
+            self.rotate_amount = np.deg2rad(31)
             self.initialize()
 
         def initialize(self) -> None:
             print("lost")
-
             def gen_command(degree=self.rotate_amount):
                 while True:
                     yield command.Wait(self.arlo, 1, self.outer_instance.particles)
@@ -181,7 +180,7 @@ class State:
                 if dist < 40:
                     self.outer_instance.particles_reset = True
                     self.outer_instance.current_goal += 1
-                    #self.outer_instance.set_state(RobotState.lost)
+                    self.outer_instance.set_state(RobotState.lost)
 
                 # If it were to far we rotate the robot to find it again
                 angle = math_utils.angle_diff(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
@@ -223,8 +222,8 @@ class State:
                 ]
                 angle = math_utils.angle_diff(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
                 if (
-                    angle < self.outer_instance.est_pos.getTheta() + 0.2
-                    and angle > self.outer_instance.est_pos.getTheta() - 0.2
+                    angle < self.outer_instance.est_pos.getTheta() + 0.3
+                    and angle > self.outer_instance.est_pos.getTheta() - 0.3
                 ):
                     self.outer_instance.particles_reset = True
                     self.outer_instance.set_state(RobotState.moving)
@@ -281,10 +280,11 @@ class State:
             self.initialize()
 
         def initialize(self):
+            print("moving")
             def gen_command():
                 while 1:
                     yield command.Straight(
-                        self.outer_instance.arlo, 10, self.outer_instance.particles
+                        self.outer_instance.arlo, 50, self.outer_instance.particles
                     )
 
             self.commands = iter(gen_command())
@@ -297,32 +297,38 @@ class State:
                 self.outer_instance.set_state(RobotState.avoidance)
                 return
 
+            currentX_pos, currentY_pos = self.outer_instance.est_pos.getPos()
+            targetX_pos, targetY_pos = self.outer_instance.landmarks[
+                self.outer_instance.goal_order[self.outer_instance.current_goal]
+            ]
+            dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
             if self.outer_instance.particles_reset == False:
-                currentX_pos, currentY_pos = self.outer_instance.est_pos.getPos()
-                targetX_pos, targetY_pos = self.outer_instance.landmarks[
-                    self.outer_instance.goal_order[self.outer_instance.current_goal]
-                ]
-                dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
+
                 if dist < 40:
                     print("Found target")
-                    self.outer_instance.particles_reset = True
+                    self.outer_instance.particles_reset = False
                     self.outer_instance.current_goal += 1
                     self.outer_instance.set_state(RobotState.lost)
                     return
+                else:
+                    self.outer_instance.particles_reset = False
+                    self.outer_instance.set_state(RobotState.lost)
+                    return
+                
+            # if not self.outer_instance.est_pos.checkLowVarianceMinMaxes():
+            #     self.outer_instance.set_state(RobotState.lost)
+            #     return
 
-            if not self.outer_instance.est_pos.checkLowVarianceMinMaxes():
-                self.outer_instance.set_state(RobotState.lost)
-                return
-
-            if time.time() - self.startTime > 5:
-                self.commands = command.Straight(
-                    self.outer_instance.arlo, 0, self.outer_instance.particles
-                )
-                self.outer_instance.set_state(RobotState.lost)
-                return
-
+            # if time.time() - self.startTime > 5:
+            #     # self.commands = command.Straight(
+            #     #     self.outer_instance.arlo, 0, self.outer_instance.particles
+            #     # )
+            #     self.outer_instance.set_state(RobotState.lost)
+            #     return
+            #self.current_command = command.Straight(self.outer_instance.arlo, dist / 10, self.outer_instance.particles)
             if self.current_command.finished:
                 self.current_command = next(self.commands)
+                self.outer_instance.set_state(RobotState.lost)
             self.current_command.run_command()
 
     class Avoidance:

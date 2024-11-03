@@ -100,8 +100,8 @@ class ParticlesWrapper:
         for _ in range(num_particles):
             # Random starting points.
             p = Particle(
+                550.0 * np.random.ranf() - 50.0,
                 600.0 * np.random.ranf() - 100.0,
-                600.0 * np.random.ranf() - 250.0,
                 np.mod(2.0 * np.pi * np.random.ranf(), 2.0 * np.pi),
                 1.0 / num_particles,
             )
