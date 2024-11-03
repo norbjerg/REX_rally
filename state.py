@@ -91,7 +91,7 @@ class State:
             self.cam: camera.Camera = outer_instance.cam
             self.arlo = outer_instance.arlo
             self.outer_instance = outer_instance
-            self.rotate_amount = np.deg2rad(31)
+            self.rotate_amount = np.deg2rad(21)
             self.initialize()
 
         def initialize(self) -> None:
@@ -290,7 +290,7 @@ class State:
                 self.outer_instance.goal_order[self.outer_instance.current_goal]
             ]
             dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
-            if dist < 60:
+            if dist < 50:
                 print("Found target")
                 self.outer_instance.particles_reset = False
                 self.outer_instance.current_goal += 1
