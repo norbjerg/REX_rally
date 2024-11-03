@@ -382,7 +382,7 @@ class Camera(object):
 
 
     def detect_aruco_objects(self, img):
-        ids, dists, angles = self._detect_aruco_objects()
+        ids, dists, angles = self._detect_aruco_objects(img)
         if ids is None:
             return (None, None, None)
         r = Constants.Robot.RADIUS*10
@@ -393,7 +393,7 @@ class Camera(object):
         return ids, dists_new, angles_new
 
 
-    def draw_aruco_objects(self, img):
+    def _draw_aruco_objects(self, img):
         """Draws detected objects and their orientations on the image given in img."""
         if not isinstance(self.ids, type(None)):
             outimg = cv2.aruco.drawDetectedMarkers(img, self.aruco_corners, self.ids)
