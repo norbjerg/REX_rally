@@ -54,100 +54,6 @@ except ImportError:
     onRobot = False
 
 
-# # Some color constants in BGR format
-# CRED = (0, 0, 255)
-# CGREEN = (0, 255, 0)
-# CBLUE = (255, 0, 0)
-# CCYAN = (255, 255, 0)
-# CYELLOW = (0, 255, 255)
-# CMAGENTA = (255, 0, 255)
-# CWHITE = (255, 255, 255)
-# CBLACK = (0, 0, 0)
-
-# # Landmarks.
-# # The robot knows the position of 2 landmarks. Their coordinates are in the unit centimeters [cm].
-# world = Constants.World
-# landmarks = world.landmarks
-# landmarkIDs = world.landmarkIDs
-# goal = world.goal
-
-
-# def jet(x):
-#     """Colour map for drawing particles. This function determines the colour of
-#     a particle from its weight."""
-#     r = (
-#         (x >= 3.0 / 8.0 and x < 5.0 / 8.0) * (4.0 * x - 3.0 / 2.0)
-#         + (x >= 5.0 / 8.0 and x < 7.0 / 8.0)
-#         + (x >= 7.0 / 8.0) * (-4.0 * x + 9.0 / 2.0)
-#     )
-#     g = (
-#         (x >= 1.0 / 8.0 and x < 3.0 / 8.0) * (4.0 * x - 1.0 / 2.0)
-#         + (x >= 3.0 / 8.0 and x < 5.0 / 8.0)
-#         + (x >= 5.0 / 8.0 and x < 7.0 / 8.0) * (-4.0 * x + 7.0 / 2.0)
-#     )
-#     b = (
-#         (x < 1.0 / 8.0) * (4.0 * x + 1.0 / 2.0)
-#         + (x >= 1.0 / 8.0 and x < 3.0 / 8.0)
-#         + (x >= 3.0 / 8.0 and x < 5.0 / 8.0) * (-4.0 * x + 5.0 / 2.0)
-#     )
-
-#     return (255.0 * r, 255.0 * g, 255.0 * b)
-
-
-# def draw_world(est_pose, particles, world):
-#     """Visualization.
-#     This functions draws robots position in the world coordinate system."""
-
-#     # Fix the origin of the coordinate system
-#     offsetX = 100
-#     offsetY = 250
-
-#     # Constant needed for transforming from world coordinates to screen coordinates (flip the y-axis)
-#     ymax = world.shape[0]
-
-#     world[:] = CWHITE  # Clear background to white
-
-#     # Find largest weight
-#     max_weight = 0
-#     for particle in particles.particles:
-#         max_weight = max(max_weight, particle.getWeight())
-
-#     # Draw particles
-#     for particle in particles.particles:
-#         x = int(particle.getX() + offsetX)
-#         y = ymax - (int(particle.getY() + offsetY))
-#         colour = jet(particle.getWeight() / max_weight)
-#         cv2.circle(world, (x, y), 2, colour, 2)
-#         b = (
-#             int(particle.getX() + 15.0 * np.cos(particle.getTheta())) + offsetX,
-#             ymax
-#             - (int(particle.getY() + 15.0 * np.sin(particle.getTheta())) + offsetY),
-#         )
-#         cv2.line(world, (x, y), b, colour, 2)
-
-#     # Draw landmarks
-#     for i in range(len(landmarkIDs)):
-#         ID = landmarkIDs[i]
-#         lm = (int(landmarks[ID][0] + offsetX), int(ymax - (landmarks[ID][1] + offsetY)))
-#         cv2.circle(world, lm, 5, landmark_colors[i], 2)
-
-#     # Draw estimated robot pose
-#     a = (int(est_pose.getX()) + offsetX, ymax - (int(est_pose.getY()) + offsetY))
-#     b = (
-#         int(est_pose.getX() + 15.0 * np.cos(est_pose.getTheta())) + offsetX,
-#         ymax - (int(est_pose.getY() + 15.0 * np.sin(est_pose.getTheta())) + offsetY),
-#     )
-#     cv2.circle(world, a, 5, CMAGENTA, 2)
-#     cv2.line(world, a, b, CMAGENTA, 2)
-
-
-# def do_direct_path(source_pos, source_theta, goal_pos):
-#     distance, theta = polar_diff(source_pos, source_theta, goal_pos)
-#     return Command(arlo, distance, theta)
-# def do_direct_path(source_pos, source_theta, goal_pos):
-#     distance, theta = polar_diff(source_pos, source_theta, goal_pos)
-#     return Command(arlo, distance, theta)
-
 
 # Main program #
 if __name__ == "__main__":
@@ -155,6 +61,7 @@ if __name__ == "__main__":
         # Initialize particles
         num_particles = 600
         particles = particle.ParticlesWrapper(num_particles, landmarks)
+        print(landmarks)
 
         est_pose = particles.estimate_pose()  # The estimate of the robots current pose
 
@@ -208,7 +115,8 @@ if __name__ == "__main__":
             # XXX: You do this
             particles.move_particles(velocity, angular_velocity)
             particles.add_uncertainty(2.5, 0.125)
-
+            
+            print(particles.estimate_pose().getPos())
             # Fetch next frame
             colour = cam.get_next_frame()
 
