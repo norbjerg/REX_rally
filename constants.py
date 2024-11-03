@@ -130,7 +130,7 @@ class Constants:
         goals = [np.array(pos) for id, pos in landmarks.items()]
         landmarkMin = (min([pos[0] for pos in goals]), min([pos[1] for pos in goals]))
         landmarkMax = (max([pos[0] for pos in goals]), max([pos[1] for pos in goals]))
-        threshold_outside = 150
+        threshold_outside = 40
 
         goal_order = [1, 2, 3, 4, 1, -1]
         num_particles = 1000
