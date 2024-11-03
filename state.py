@@ -187,6 +187,7 @@ class State:
             self.initialize()
 
         def initialize(self):
+            pass
             # self.goal = self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]]
 
         def update(self):
