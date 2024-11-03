@@ -122,8 +122,9 @@ class State:
             self.measurements = dict()
             self.rotated_times = 0
 
-            if self.outer_instance.particles_reset:
-                self.outer_instance.reset_particles()
+            self.outer_instance.reset_particles()
+            # if self.outer_instance.particles_reset:
+                # self.outer_instance.reset_particles()
 
         def update(self):
             # Check if we have reached all targets
