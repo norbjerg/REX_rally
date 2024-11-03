@@ -304,15 +304,10 @@ class State:
             ]
             dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
             if self.outer_instance.particles_reset == False:
-
-                if dist < 40:
+                if dist > 40:
                     print("Found target")
                     self.outer_instance.particles_reset = False
                     self.outer_instance.current_goal += 1
-                    self.outer_instance.set_state(RobotState.lost)
-                    return
-                else:
-                    self.outer_instance.particles_reset = False
                     self.outer_instance.set_state(RobotState.lost)
                     return
                 
