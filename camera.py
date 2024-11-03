@@ -387,7 +387,7 @@ class Camera(object):
             return (None, None, None)
         r = Constants.Robot.RADIUS*10
         Lx = r + np.cos(angles)
-        Ly = distance * np.sin(angle)
+        Ly = dists * np.sin(angle)
         dists_new = np.sqrt(Lx**2 + Ly**2)
         angles_new = np.arcsin(Ly/dists_new)
         return ids, dists_new, angles_new
