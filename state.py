@@ -18,8 +18,7 @@ from particle import Particle, ParticlesWrapper
 class RobotState(Enum):
     lost = 0
     moving = 1
-    checking = 2
-    avoidance = 3
+    avoidance = 2
 
 
 class State:
@@ -55,7 +54,6 @@ class State:
 
         self._lost = self.Lost(self)
         self._moving = self.Moving(self)
-        self._checking = None  # self.Checking(self)
         self._avoidance = self.Avoidance(self)
         self.current_state = self._lost
 
@@ -250,48 +248,6 @@ class State:
 
             self.current_command.run_command()
 
-    class Checking:
-        def __init__(self, outer_instance: "State") -> None:
-            self.cam: camera.Camera = outer_instance.cam
-            self.outer_instance = outer_instance
-            self.initialize()
-
-        def initialize(self):
-            print("checking")
-            self.goal = self.outer_instance.goals[
-                self.outer_instance.goal_order[self.outer_instance.current_goal]
-            ]
-
-        def update(self):
-            def gen_command():
-                yield command.Straight(self.outer_instance.arlo, 100, self.outer_instance.particles)
-
-            self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
-            est_pos = self.outer_instance.est_pos
-
-            # IDK OM DET HER VIRKER HIHI. TJEKKER BARE OM ROBOTTENS EST POS PEGER MOD MÅL
-            """"
-            estX, estY, estTheta = est_pos.getX(), est_pos.getY(), est_pos.getTheta()
-            delta_x = self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]][0] - estX
-            delta_y = self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]][1] - estY
-            theta = np.arctan2(delta_y, delta_x)
-            if est_pos.getTheta() > theta + Constants.Robot.ANGULAR_NOISE and est_pos.getTheta() < theta - Constants.Robot.ANGULAR_NOISE :
-                print("found route")
-                self.outer_instance.set_state(RobotState.moving)
-            """
-
-            est_pos = self.outer_instance.est_pos
-            offset_vec = np.array([-np.sin(est_pos.getTheta()), np.cos(est_pos.getTheta())]) * (
-                Constants.Obstacle.SHAPE_RADIUS_CM + 20
-            )
-            local_goal_pos = est_pos.getPos() - self.goal + offset_vec
-
-            if self.outer_instance.route is not None:
-                self.outer_instance.set_state(RobotState.moving)
-                self.outer_instance.route = list(gen_command([local_goal_pos]))
-            else:
-                print("No route found")
-
     class Moving:
         def __init__(self, outer_instance: "State") -> None:
             self.cam: camera.Camera = outer_instance.cam
@@ -374,9 +330,7 @@ class State:
 
     def set_state(self, state: RobotState, **kwargs):
         self.state = state
-        self.current_state = (
-            self.lost or self.moving or self.checking or self.avoidance or self._lost
-        )
+        self.current_state = self.lost or self.moving or self.avoidance or self._lost
         self.current_state.initialize(**kwargs)
 
     @property
@@ -386,10 +340,6 @@ class State:
     @property
     def moving(self):
         return self._moving if self.state == RobotState.moving else None
-
-    @property
-    def checking(self):
-        return self._checking if self.state == RobotState.checking else None
 
     @property
     def avoidance(self):
