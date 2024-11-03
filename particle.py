@@ -156,6 +156,10 @@ class ParticlesWrapper:
         return Particle(x, y, theta, min_maxes=((min_x, max_x), (min_y, max_y)))
 
     def check_est_pose_variance(self, est_pos: Particle, variance_threshold: float = 25.0):
+        
+        if est_pos is None:
+            return False
+
         est_pos_pos = est_pos.getPos()
         
         
