@@ -179,7 +179,7 @@ class State:
 
                 # If distance and low variance we believe it was close enough to target
                 dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
-                if dist < 40:
+                if dist > 400:
                     self.outer_instance.particles_reset = True
                     self.outer_instance.current_goal += 1
                     self.outer_instance.set_state(RobotState.lost)
@@ -306,7 +306,7 @@ class State:
             dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
             print("dist: ", dist)
             if self.outer_instance.particles_reset == False:
-                if dist > 40:
+                if dist > 400:
                     print("Found target")
                     self.outer_instance.particles_reset = False
                     self.outer_instance.current_goal += 1
