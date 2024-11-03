@@ -155,6 +155,13 @@ class ParticlesWrapper:
 
         return Particle(x, y, theta, min_maxes=((min_x, max_x), (min_y, max_y)))
 
+    def check_est_pose_variance(self, est_pos: Particle, variance_threshold: float = 25.0):
+        est_pos_pos = est_pos.getPos()
+        
+        
+        return np.average([np.linalg.norm(est_pos_pos - particle.getPos()) for particle in self.particles]) < variance_threshold
+        
+
     def add_uncertainty(self, sigma, sigma_theta):
         """Add some noise to each particle in the list. Sigma and sigma_theta is the noise
         variances for position and angle noise."""

@@ -170,7 +170,7 @@ class State:
             # Shortcut: Saw target earlier, but lost it
             if (
                 target_id in self.measurements
-                # and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
+                or self.outer_instance.particles.check_est_pose_variance(self.outer_instance.est_pos)
             ):
                 currentX_pos, currentY_pos = self.outer_instance.est_pos.getPos()
                 targetX_pos, targetY_pos = self.outer_instance.landmarks[
@@ -180,7 +180,7 @@ class State:
                 # If distance and low variance we believe it was close enough to target
                 dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
                 print("dist: ", dist)
-                if dist > 40 + Constants.Robot.ANGULAR_NOISE:
+                if dist > 60 + Constants.Robot.DISTANCE_NOISE:
                     print("At current target, Moving to next target: ", self.outer_instance.goal_order[self.outer_instance.current_goal])
                     #self.outer_instance.particles_reset = True
                     self.outer_instance.current_goal += 1
