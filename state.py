@@ -187,7 +187,7 @@ class State:
             self.initialize()
 
         def initialize(self):
-            self.goal = self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]]
+            # self.goal = self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]]
 
         def update(self):
             def gen_command(positions):
