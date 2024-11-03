@@ -151,24 +151,29 @@ class State:
             if len(current_measurements) > 0:
                 # If we have one measurement we update once
                 if len(self.measurements) == 1 and self.initial_resample:
-                    self.outer_instance.particles.update(self.measurements)
+                    self.outer_instance.particles.resample(self.measurements)
                     self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
                     self.initial_resample = False
 
                 # If we have more than one measurement we update continuously
                 elif len(self.measurements) >= 2:
-                    self.outer_instance.particles.update(current_measurements)
+                    self.outer_instance.particles.resample(current_measurements)
                     self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
 
             # Shortcut: If camera sees target now, then we move forward
-            # if target_id in current_measurements:
-            #     print("Found target")
-            #     if self.measurements[target_id][0] > 40 + Constants.Robot.DISTANCE_NOISE:
-            #         print("Target too far. Moving toward it")
-            #         self.outer_instance.particles_reset = False
-            #         self.outer_instance.set_state(RobotState.moving)
-            #         return
-            #     return
+            if target_id in current_measurements:
+                print("Found target")
+                self.outer_instance.particles.resample(current_measurements)
+                if self.measurements[target_id][0] > 40 + Constants.Robot.DISTANCE_NOISE:
+                    print("Target too far. Moving toward it")
+                    self.outer_instance.particles_reset = False
+                    self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
+                    if self.outer_instance.particles.check_est_pose_variance(
+                        self.outer_instance.est_pos, 10
+                    ):
+                        self.outer_instance.set_state(RobotState.moving)
+                        return
+                return
 
             # Shortcut: Saw target earlier, but lost it
             if self.outer_instance.est_pos is not None and (
