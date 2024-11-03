@@ -104,15 +104,15 @@ class State:
                     yield command.Wait(self.arlo, 1, self.outer_instance.particles)
                     yield command.Rotate(self.arlo, degree, self.outer_instance.particles)
 
-            # if self.outer_instance.est_pos is not None:
-            #     pos = self.outer_instance.est_pos.getPos()
-            #     if (
-            #         pos[0] < Constants.World.landmarkMin[0] - Constants.World.threshold_outside
-            #         or pos[0] > Constants.World.landmarkMax[0] + Constants.World.threshold_outside
-            #         or pos[1] < Constants.World.landmarkMin[1] - Constants.World.threshold_outside
-            #         or pos[1] > Constants.World.landmarkMax[1] + Constants.World.threshold_outside
-            #     ):
-            #         self.outer_instance.reset_particles()
+            if self.outer_instance.est_pos is not None:
+                pos = self.outer_instance.est_pos.getPos()
+                if (
+                    pos[0] < Constants.World.landmarkMin[0] - Constants.World.threshold_outside
+                    or pos[0] > Constants.World.landmarkMax[0] + Constants.World.threshold_outside
+                    or pos[1] < Constants.World.landmarkMin[1] - Constants.World.threshold_outside
+                    or pos[1] > Constants.World.landmarkMax[1] + Constants.World.threshold_outside
+                ):
+                    self.outer_instance.reset_particles()
 
             self.inner_instance_particles = self.outer_instance.particles
             self.queue = iter(gen_command())
