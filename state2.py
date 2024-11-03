@@ -21,6 +21,7 @@ class RobotState(Enum):
     checking = 2
     avoidance = 3
 
+
 class State:
     def __init__(self) -> None:
         self.on_arlo = Constants.World.running_on_arlo
@@ -102,32 +103,48 @@ class State:
             self.resampled = False
 
         def update(self):
-            objectIDs, dists, angles = self.cam.detect_aruco_objects(self.outer_instance.colour) # Detect objects
-            
+            objectIDs, dists, angles = self.cam.detect_aruco_objects(
+                self.outer_instance.colour
+            )  # Detect objects
+
             measurements = dict()
 
             # Pick the closest marker
-            if (not isinstance(objectIDs, type(None)) and not isinstance(dists, type(None)) and not isinstance(angles, type(None))):
+            if (
+                not isinstance(objectIDs, type(None))
+                and not isinstance(dists, type(None))
+                and not isinstance(angles, type(None))
+            ):
                 for objectID, dist, angle in zip(objectIDs, dists, angles):
                     measurements.setdefault(objectID, (np.inf, np.inf))
                     exist_dist, exist_angle = measurements[objectID]
                     if dist < exist_dist:
                         measurements[objectID] = (dist, angle)
-                
-                 # Afsted ingen vrøvl!
-                if len(self.seen_landmarks) >= 2 and self.outer_instance.goal_order[self.outer_instance.current_goal] in objectIDs:
+
+                # Afsted ingen vrøvl!
+                if (
+                    len(self.seen_landmarks) >= 2
+                    and self.outer_instance.goal_order[self.outer_instance.current_goal]
+                    in objectIDs
+                ):
                     self.outer_instance.set_state(RobotState.moving)
 
-            useful_measurements = set(measurements).intersection(set(self.outer_instance.landmarkIDs))
-            useful_measurements_dict = {useful_key: measurements[useful_key] for useful_key in useful_measurements}
+            useful_measurements = set(measurements).intersection(
+                set(self.outer_instance.landmarkIDs)
+            )
+            useful_measurements_dict = {
+                useful_key: measurements[useful_key] for useful_key in useful_measurements
+            }
             self.seen_landmarks.update(useful_measurements_dict)
 
-            if len(useful_measurements) > 0 and self.resampled:  # perform resampling on the particles
-                self.outer_instance.particles.update(useful_measurements_dict)
+            if (
+                len(useful_measurements) > 0 and self.resampled
+            ):  # perform resampling on the particles
+                self.outer_instance.particles.resample(useful_measurements_dict)
                 self.resampled = False
 
             if len(self.seen_landmarks) >= 2:
-                self.outer_instance.particles.update(useful_measurements_dict)
+                self.outer_instance.particles.resample(useful_measurements_dict)
 
             if self.current_command.finished:
                 self.current_command = next(self.queue)
@@ -141,7 +158,9 @@ class State:
             self.initialize()
 
         def initialize(self):
-            self.goal = self.outer_instance.goals[self.outer_instance.goal_order[self.outer_instance.current_goal]]
+            self.goal = self.outer_instance.goals[
+                self.outer_instance.goal_order[self.outer_instance.current_goal]
+            ]
 
         def update(self):
             def gen_command(positions):
@@ -172,7 +191,6 @@ class State:
                 self.outer_instance.route = list(gen_command([local_goal_pos]))
             else:
                 print("No route found")
-                
 
     class Moving:
         def __init__(self, outer_instance: "State") -> None:
@@ -182,16 +200,22 @@ class State:
 
         def initialize(self):
             if command.too_close(self.left, self.right, self.front):
-                self.outer_instance.set_state(RobotState.avoidance, sonars=(self.left, self.front, self.right))
+                self.outer_instance.set_state(
+                    RobotState.avoidance, sonars=(self.left, self.front, self.right)
+                )
                 return
             else:
-                self.current_command = command.Straight(self.outer_instance.arlo, 50, self.outer_instance.particles)
+                self.current_command = command.Straight(
+                    self.outer_instance.arlo, 50, self.outer_instance.particles
+                )
                 self.current_command.run_command()
             self.outer_instance.set_state(RobotState.lost)
 
         def update(self):
             if command.too_close(self.left, self.right, self.front):
-                self.outer_instance.set_state(RobotState.avoidance, sonars=(self.left, self.front, self.right))
+                self.outer_instance.set_state(
+                    RobotState.avoidance, sonars=(self.left, self.front, self.right)
+                )
                 return
 
     class Avoidance:
@@ -204,7 +228,6 @@ class State:
         def initialize(self):
             command.Straight(self.outer_instance.arlo, 0, self.outer_instance.particles)
 
-
         def update(self):
             self.left, self.right, self.front = self.outer_instance.arlo.read_sonars()
 
@@ -216,7 +239,6 @@ class State:
                 command.Rotate(self.outer_instance.arlo, -np.pi / 4, self.outer_instance.particles)
             else:
                 command.Rotate(self.outer_instance.arlo, np.pi / 4, self.outer_instance.particles)
-
 
     def set_state(self, state: RobotState, **kwargs):
         self.state = state

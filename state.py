@@ -145,12 +145,12 @@ class State:
 
             if len(self.measurements) == 1:
                 if self.initial_resample:
-                    self.outer_instance.particles.update(self.measurements)
+                    self.outer_instance.particles.resample(self.measurements)
                     self.initial_resample = False
                     self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
 
             if len(self.measurements) >= 2:
-                self.outer_instance.particles.update(self.measurements)
+                self.outer_instance.particles.resample(self.measurements)
                 self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
 
             if (

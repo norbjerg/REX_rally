@@ -209,6 +209,6 @@ class ParticlesWrapper:
         self.set_weights(weights)
         return weights
 
-    def update(self, measurements):
+    def resample(self, measurements):
         self.particle_likelihoods(measurements)
         self.resample_particles()

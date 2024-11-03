@@ -5,45 +5,17 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
 
-try:
-    from local_constants import LocalConstants
-except ImportError:
-    LocalConstants = None
-
-
-onRobot = False
-
-
-def isRunningOnArlo():
-    """Return True if we are running on Arlo, otherwise False.
-    You can use this flag to switch the code from running on you laptop to Arlo - you need to do the programming here!
-    """
-    return onRobot
-
-
-if isRunningOnArlo():
-    # XXX: You need to change this path to point to where your robot.py file is located
-    sys.path.append("../../../../Arlo/python")
-
-
-try:
-    if isRunningOnArlo():
-        import robot
-
-        onRobot = True
-    else:
-        onRobot = False
-except ImportError:
-    print("selflocalize.py: robot module not present - forcing not running on Arlo!")
-    onRobot = False
+if os.getenv("ROBOT_TEST_MODE") is not None:
+    from test_constants import LocalConstants
+else:
+    try:
+        from local_constants import LocalConstants
+    except ImportError:
+        LocalConstants = None
 
 
 class Constants:
     class Robot:
-        if "PICAM" in os.environ:
-            INCLUDE = True
-        else:
-            INCLUDE = False
         MAX_VOLT = 12
         MAX_RPM = 100
         DIAMETER = 395  # mm +- 5 mm
@@ -55,7 +27,7 @@ class Constants:
         QUARTER_TURN_64 = 0.725  # sleep
         FORWARD_SPEED = 100 / 2.7  # cm/s
         ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
-        DISTANCE_NOISE = 1 # cm
+        DISTANCE_NOISE = 1  # cm
         ANGULAR_NOISE = 0.1  # rad
         CTRL_RANGE = [-20, 20]  # cm
 
@@ -119,34 +91,17 @@ class Constants:
 
     class World:
         landmarks = {
-            # TODO: Change
             1: (0.0, 0.0),
             2: (0.0, 300.0),
             3: (400.0, 0.0),
             4: (400.0, 300.0),
         }
-        # landmarks = {
-        #     # TODO: Change
-        #     1: (0.0, 0.0),
-        #     2: (0.0, 200.0),
-        #     3: (200.0, 0.0),
-        #     4: (200.0, 200.0),
-        # }
-
-        # landmarks = {
-        #     # TODO: Change
-        #     5: (0.0, 0.0),
-        #     8: (0.0, 300.0),
-        #     3: (400.0, 0.0),
-        #     4: (400.0, 300.0),
-        # }
         landmarkIDs = list(landmarks)
         goals = [np.array(pos) for id, pos in landmarks.items()]
         landmarkMin = (min([pos[0] for pos in goals]), min([pos[1] for pos in goals]))
         landmarkMax = (max([pos[0] for pos in goals]), max([pos[1] for pos in goals]))
         threshold_outside = 150
 
-        # goal_order = [5, 8, 5, -1]
         goal_order = [1, 2, 3, 4, 1, -1]
 
         num_particles = 600
@@ -161,6 +116,7 @@ if LocalConstants is not None:
         Constants.Obstacle,
         Constants.PID,
         Constants.PyPlot,
+        Constants.World,
     ]:
         local_const_class = getattr(LocalConstants, const_class.__name__, None)
         if local_const_class is not None:
