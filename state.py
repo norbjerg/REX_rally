@@ -98,7 +98,10 @@ class State:
 
         def initialize(self) -> None:
             print("lost")
-            print("current goal: ", self.outer_instance.goal_order[self.outer_instance.current_goal])
+            print(
+                "current goal: ", self.outer_instance.goal_order[self.outer_instance.current_goal]
+            )
+
             def gen_command(degree=self.rotate_amount):
                 while True:
                     yield command.Wait(self.arlo, 1, self.outer_instance.particles)
@@ -122,9 +125,9 @@ class State:
             self.measurements = dict()
             self.rotated_times = 0
 
-            #self.outer_instance.reset_particles()
+            # self.outer_instance.reset_particles()
             # if self.outer_instance.particles_reset:
-                # self.outer_instance.reset_particles()
+            # self.outer_instance.reset_particles()
 
         def update(self):
             # Check if we have reached all targets
@@ -158,19 +161,21 @@ class State:
                     self.outer_instance.est_pos = self.outer_instance.particles.estimate_pose()
 
             # Shortcut: If camera sees target now, then we move forward
-            if target_id in current_measurements:
-                print("Found target")
-                if self.measurements[target_id][0] > 40 + Constants.Robot.DISTANCE_NOISE:
-                    print("Target too far. Moving toward it")
-                    self.outer_instance.particles_reset = False
-                    self.outer_instance.set_state(RobotState.moving)
-                    return
-                return
-            
+            # if target_id in current_measurements:
+            #     print("Found target")
+            #     if self.measurements[target_id][0] > 40 + Constants.Robot.DISTANCE_NOISE:
+            #         print("Target too far. Moving toward it")
+            #         self.outer_instance.particles_reset = False
+            #         self.outer_instance.set_state(RobotState.moving)
+            #         return
+            #     return
+
             # Shortcut: Saw target earlier, but lost it
-            if (
+            if self.outer_instance.est_pos is not None and (
                 target_id in self.measurements
-                or self.outer_instance.particles.check_est_pose_variance(self.outer_instance.est_pos, 10)
+                or self.outer_instance.particles.check_est_pose_variance(
+                    self.outer_instance.est_pos, 10
+                )
             ):
                 currentX_pos, currentY_pos = self.outer_instance.est_pos.getPos()
                 targetX_pos, targetY_pos = self.outer_instance.landmarks[
@@ -181,8 +186,11 @@ class State:
                 dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
                 print("dist: ", dist)
                 if dist > 60 + Constants.Robot.DISTANCE_NOISE:
-                    print("At current target, Moving to next target: ", self.outer_instance.goal_order[self.outer_instance.current_goal])
-                    #self.outer_instance.particles_reset = True
+                    print(
+                        "At current target, Moving to next target: ",
+                        self.outer_instance.goal_order[self.outer_instance.current_goal],
+                    )
+                    # self.outer_instance.particles_reset = True
                     self.outer_instance.current_goal += 1
                     # self.outer_instance.set_state(RobotState.lost)
                     return
@@ -197,11 +205,11 @@ class State:
                 #     self.outer_instance.set_state(RobotState.moving)
                 #     return
 
-            if (len(self.measurements) >= 2):
+            if len(self.measurements) >= 2:
                 print("seen two landmarks Trying to adjust toward goal")
-            #     self.outer_instance.est_pos is not None
-            #     and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
-            # ):
+                #     self.outer_instance.est_pos is not None
+                #     and self.outer_instance.est_pos.checkLowVarianceMinMaxes()
+                # ):
                 currentX_pos, currentY_pos = self.outer_instance.est_pos.getPos()
                 targetX_pos, targetY_pos = self.outer_instance.landmarks[
                     self.outer_instance.goal_order[self.outer_instance.current_goal]
@@ -211,7 +219,7 @@ class State:
                     angle < self.outer_instance.est_pos.getTheta() + 0.3
                     and angle > self.outer_instance.est_pos.getTheta() - 0.3
                 ):
-                    #self.outer_instance.particles_reset = True
+                    # self.outer_instance.particles_reset = True
                     self.outer_instance.set_state(RobotState.moving)
                     return
 
@@ -288,6 +296,7 @@ class State:
 
         def initialize(self):
             print("moving")
+
             def gen_command():
                 while 1:
                     yield command.Straight(
@@ -303,7 +312,7 @@ class State:
             if self.left < 350 or self.right < 350 or self.front < 350:
                 self.outer_instance.set_state(RobotState.avoidance)
                 return
-            
+
             # if not self.outer_instance.est_pos.checkLowVarianceMinMaxes():
             #     self.outer_instance.set_state(RobotState.lost)
             #     return
@@ -314,7 +323,7 @@ class State:
             #     # )
             #     self.outer_instance.set_state(RobotState.lost)
             #     return
-            #self.current_command = command.Straight(self.outer_instance.arlo, dist / 10, self.outer_instance.particles)
+            # self.current_command = command.Straight(self.outer_instance.arlo, dist / 10, self.outer_instance.particles)
             currentX_pos, currentY_pos = self.outer_instance.est_pos.getPos()
             targetX_pos, targetY_pos = self.outer_instance.landmarks[
                 self.outer_instance.goal_order[self.outer_instance.current_goal]
@@ -326,13 +335,11 @@ class State:
                 self.outer_instance.current_goal += 1
                 self.outer_instance.set_state(RobotState.lost)
                 return
-            
+
             if self.current_command.finished:
                 self.current_command = next(self.commands)
                 self.outer_instance.set_state(RobotState.lost)
             self.current_command.run_command()
-            
-                
 
     class Avoidance:
         def __init__(self, outer_instance: "State") -> None:
