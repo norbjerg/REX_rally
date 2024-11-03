@@ -102,7 +102,7 @@ class Constants:
             SCREEN_RESOLUTION[0] // (2**PREVIEW_DOWNSCALE),
             SCREEN_RESOLUTION[1] // (2**PREVIEW_DOWNSCALE),
         )
-        ENABLE_PREVIEW = 0
+        ENABLE_PREVIEW = 1
         ENABLE_GUI = 1
         CAMERA_FPS = 24
         DRAW_PATH_BLOCKING = 1
@@ -118,19 +118,19 @@ class Constants:
         interactive_backend = "Qt5Agg"
 
     class World:
-        # landmarks = {
-        #     # TODO: Change
-        #     1: (0.0, 0.0),
-        #     2: (0.0, 300.0),
-        #     3: (400.0, 0.0),
-        #     4: (400.0, 300.0),
-        # }
-
         landmarks = {
             # TODO: Change
-            5: (0.0, 0.0),
-            8: (0.0, 300.0),
+            1: (0.0, 0.0),
+            2: (0.0, 300.0),
+            3: (400.0, 0.0),
+            4: (400.0, 300.0),
         }
+
+        # landmarks = {
+        #     # TODO: Change
+        #     5: (0.0, 0.0),
+        #     8: (0.0, 300.0),
+        # }
         landmarkIDs = list(landmarks)
         goals = [np.array(pos) for id, pos in landmarks.items()]
 
