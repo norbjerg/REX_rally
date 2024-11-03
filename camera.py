@@ -389,7 +389,7 @@ class Camera(object):
         Lx = r + dists * np.cos(angles)
         Ly = dists * np.sin(angles)
         dists_new = np.sqrt(Lx**2 + Ly**2)
-        angles_new = np.arcsin(Ly/dists_new)
+        angles_new = np.arctan2(Ly, Lx)
         return ids, dists_new, angles_new
 
 
