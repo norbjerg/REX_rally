@@ -386,7 +386,7 @@ class Camera(object):
         if ids is None:
             return (None, None, None)
         r = Constants.Robot.RADIUS*10
-        Lx = r + np.cos(angles)
+        Lx = r + dists * np.cos(angles)
         Ly = dists * np.sin(angles)
         dists_new = np.sqrt(Lx**2 + Ly**2)
         angles_new = np.arcsin(Ly/dists_new)
