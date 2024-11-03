@@ -163,7 +163,8 @@ class State:
                     print("Target too far. Moving toward it")
                     self.outer_instance.particles_reset = False
                     self.outer_instance.set_state(RobotState.moving)
-
+                    return
+                return
             # Shortcut: Saw target earlier, but lost it
             if (
                 target_id in self.measurements
