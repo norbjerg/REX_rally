@@ -186,7 +186,7 @@ class ParticlesWrapper:
                 print(pmf[i])
 
         # choice as indexes:
-        choices = self.rng.choice(self.num_particles, size=self.num_particles // 2, p=pmf)
+        choices = self.rng.choice(self.num_particles // 2, size=self.num_particles // 2, p=pmf)
         resampled_particles = [copy(self.particles[choice]) for choice in choices]
         self.particles = resampled_particles + self.particles[self.num_particles // 2 :]
 
