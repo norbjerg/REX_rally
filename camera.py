@@ -341,9 +341,19 @@ class Camera(object):
         
         return img
 
+    def detect_aruco_objects(self, img):
+        ids, dists, angles = _detect_aruco_objects()
+        if ids is None:
+            return (None, None, None)
+        r = Constants.Robot.RADIUS*10
+        Lx = r + np.cos(angles)
+        Ly = distance * np.sin(angle)
+        dists_new = np.sqrt(Lx**2 + Ly**2)
+        angles_new = np.arcsin(Ly/dists_new)
+        return ids, dists_new, angles_new
 
     # ArUco object detector
-    def detect_aruco_objects(self, img):
+    def _detect_aruco_objects(self, img):
         """Detect objects in the form of a binary ArUco code and return object IDs, distances (in cm) and
         angles (in radians) to detected ArUco codes. The angle is computed as the signed angle between
         translation vector to detected object projected onto the x-z plabe and the z-axis (pointing out
