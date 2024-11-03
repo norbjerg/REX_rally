@@ -390,7 +390,7 @@ class Camera(object):
         Ly = dists * np.sin(angles)
         dists_new = np.sqrt(Lx**2 + Ly**2)
         angles_new = np.arctan2(Ly, Lx)
-        print(dists_new - dists, angles - angles_new)
+        print(f"dists diff: {(dists_new - dists)[0]}, angle diff{angles - angles_new[0]}")
         return ids, dists_new, angles_new
 
 
