@@ -385,13 +385,13 @@ class Camera(object):
         ids, dists, angles = self._detect_aruco_objects(img)
         if ids is None:
             return (None, None, None)
-        r = Constants.Robot.RADIUS
+        r = Constants.Robot.RADIUS*10
         Lx = r + dists * np.cos(angles)
         Ly = dists * np.sin(angles)
         dists_new = np.sqrt(Lx**2 + Ly**2)
         angles_new = np.arctan2(Ly, Lx)
         print(f"dists diff: {(dists_new, dists)}, angle diff: {angles, angles_new}")
-        return ids, dists_new, angles_new
+        return ids, dists, angles_new
 
 
     def _draw_aruco_objects(self, img):
