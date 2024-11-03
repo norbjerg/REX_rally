@@ -104,15 +104,15 @@ class State:
                     yield command.Wait(self.arlo, 1, self.outer_instance.particles)
                     yield command.Rotate(self.arlo, degree, self.outer_instance.particles)
 
-            if self.outer_instance.est_pos is not None:
-                pos = self.outer_instance.est_pos.getPos()
-                if (
-                    pos[0] < Constants.World.landmarkMin[0] - Constants.World.threshold_outside
-                    or pos[0] > Constants.World.landmarkMax[0] + Constants.World.threshold_outside
-                    or pos[1] < Constants.World.landmarkMin[1] - Constants.World.threshold_outside
-                    or pos[1] > Constants.World.landmarkMax[1] + Constants.World.threshold_outside
-                ):
-                    self.outer_instance.reset_particles()
+            # if self.outer_instance.est_pos is not None:
+            #     pos = self.outer_instance.est_pos.getPos()
+            #     if (
+            #         pos[0] < Constants.World.landmarkMin[0] - Constants.World.threshold_outside
+            #         or pos[0] > Constants.World.landmarkMax[0] + Constants.World.threshold_outside
+            #         or pos[1] < Constants.World.landmarkMin[1] - Constants.World.threshold_outside
+            #         or pos[1] > Constants.World.landmarkMax[1] + Constants.World.threshold_outside
+            #     ):
+            #         self.outer_instance.reset_particles()
 
             self.inner_instance_particles = self.outer_instance.particles
             self.queue = iter(gen_command())
@@ -122,7 +122,7 @@ class State:
             self.measurements = dict()
             self.rotated_times = 0
 
-            self.outer_instance.reset_particles()
+            #self.outer_instance.reset_particles()
             # if self.outer_instance.particles_reset:
                 # self.outer_instance.reset_particles()
 
@@ -174,14 +174,14 @@ class State:
                 targetX_pos, targetY_pos = self.outer_instance.landmarks[
                     self.outer_instance.goal_order[self.outer_instance.current_goal]
                 ]
+                print("Saw target earlier, try fo go towards it")
 
                 # If distance and low variance we believe it was close enough to target
                 dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
                 if dist < 40:
-                    print("Saw target earlier")
                     self.outer_instance.particles_reset = True
                     self.outer_instance.current_goal += 1
-                    self.outer_instance.set_state(RobotState.lost)
+                    #self.outer_instance.set_state(RobotState.lost)
 
                 # If it were to far we rotate the robot to find it again
                 angle = math_utils.angle_diff(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
