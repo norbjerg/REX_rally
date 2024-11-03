@@ -201,8 +201,8 @@ class ParticlesWrapper:
         # choice as indexes:
         choices = self.rng.choice(self.num_particles, size=self.num_particles, p=pmf)
         resampled_particles = [copy(self.particles[choice]) for choice in choices]
-        self.particles = resampled_particles[: self.num_particles - 10] + self.initialize_particles(
-            10
+        self.particles = resampled_particles[: self.num_particles - 1] + self.initialize_particles(
+            1
         )
 
     def set_weights(self, weights):
