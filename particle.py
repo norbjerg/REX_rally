@@ -176,19 +176,21 @@ class ParticlesWrapper:
         # print("moved particles", distance, angle)
 
     def resample_particles(self):
-        pmf = np.zeros(self.num_particles // 2, dtype=np.float64)
+        pmf = np.zeros(self.num_particles, dtype=np.float64)
         if not self.particles:
             return
 
-        for i in range(self.num_particles // 2):
-            pmf[i] = self.particles[i].getWeight()
+        for i, p in enumerate(self.particles):
+            pmf[i] = p.getWeight()
             if np.isnan(pmf[i]):
                 print(pmf[i])
 
         # choice as indexes:
-        choices = self.rng.choice(self.num_particles // 2, size=self.num_particles // 2, p=pmf)
+        choices = self.rng.choice(self.num_particles, size=self.num_particles, p=pmf)
         resampled_particles = [copy(self.particles[choice]) for choice in choices]
-        self.particles = resampled_particles + self.particles[self.num_particles // 2 :]
+        self.particles = resampled_particles[:self.num_particles // 2] + self.initialize_particles(
+            self.num_particles // 2
+        )
 
     def set_weights(self, weights):
         for p, w in zip(self.particles, weights):
