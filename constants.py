@@ -57,7 +57,7 @@ class Constants:
         FORWARD_SPEED = 100 / 5  # cm/s 55 power
         #ROTATIONAL_SPEED = 0.85  # np.deg2rad(360 / 7.3)  # rad/s
         ROTATIONAL_SPEED = 0.60
-        DISTANCE_NOISE = 1  # cm
+        DISTANCE_NOISE = 5  # cm
         ANGULAR_NOISE = 0.1  # rad
         CTRL_RANGE = [-20, 20]  # cm
 
