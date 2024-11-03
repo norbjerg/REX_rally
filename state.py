@@ -98,6 +98,7 @@ class State:
 
         def initialize(self) -> None:
             print("lost")
+            print("current goal: ", self.outer_instance.goal_order[self.outer_instance.current_goal])
             def gen_command(degree=self.rotate_amount):
                 while True:
                     yield command.Wait(self.arlo, 1, self.outer_instance.particles)
