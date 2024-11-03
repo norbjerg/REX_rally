@@ -1,6 +1,11 @@
+import numpy as np
+
+
 class LocalConstants:
     class Robot:
         INCLUDE = True
+        DISTANCE_NOISE = 35
+        ANGULAR_NOISE = np.deg2rad(10)
 
     class Sensor:
         pass
@@ -18,3 +23,4 @@ class LocalConstants:
 
     class World:
         running_on_arlo = True
+        num_particles = 600 * 2 

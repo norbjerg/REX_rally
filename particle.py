@@ -39,12 +39,13 @@ class Particle(object):
     def getMinMaxes(self):
         return self.min_maxes
 
-    def checkLowVarianceMinMaxes(self):
+    def checkLowVarianceMinMaxes(self, variance=25):
         if self.min_maxes is None:
+            print("no min maxes")
             return False
 
         (min_x, max_x), (min_y, max_y) = self.min_maxes
-        return max_x - min_x < 25 and max_y - min_y < 25
+        return max_x - min_x < variance and max_y - min_y < variance
 
     def setX(self, val):
         self.x = val
