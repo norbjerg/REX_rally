@@ -47,7 +47,7 @@ class Command(ABC):
     def run_command(self):
         if self.robot.isArlo and self.dist > 0 and not self.finished:
             left, front, right = self.robot.read_sonars()
-            if front < 10:
+            if front < 20 or left < 20 or right < 20:
                 self.robot.stop()
                 self.avoidance_mode = True
                 self.sonars = (left, front, right)

@@ -20,3 +20,16 @@ def polar_diff(src_x, src_theta, target_x):
         np.arccos(np.dot(landmark_e, particle_e)) )
 
     return particle_dist, particle_theta
+
+def angle_diff(x1, y1, x2, y2):
+    # Calculate the angle between two points
+    deltaX = x2 - x1
+    deltaY = y2 - y1
+    angle = np.arctan2(deltaY, deltaX)
+    if angle < 0:
+        angle += 2*np.pi
+    return angle
+
+def distance(x1, y1, x2, y2):
+    # Calculate the distance between two points
+    return np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
