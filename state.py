@@ -304,6 +304,7 @@ class State:
                 self.outer_instance.goal_order[self.outer_instance.current_goal]
             ]
             dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
+            print("dist: ", dist)
             if self.outer_instance.particles_reset == False:
                 if dist > 40:
                     print("Found target")
