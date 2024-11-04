@@ -180,7 +180,7 @@ class State:
                 # If distance and low variance we believe it was close enough to target
                 dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
                 print("dist: ", dist)
-                if dist > 40 + Constants.Robot.ANGULAR_NOISE:
+                if dist > 45 + Constants.Robot.ANGULAR_NOISE:
                     print("At current target, Moving to next target: ", self.outer_instance.goal_order[self.outer_instance.current_goal])
                     #self.outer_instance.particles_reset = True
                     self.outer_instance.current_goal += 1
@@ -213,6 +213,16 @@ class State:
                 ):
                     #self.outer_instance.particles_reset = True
                     self.outer_instance.set_state(RobotState.moving)
+                    return
+                
+                # If distance and low variance we believe it was close enough to target
+                dist = math_utils.distance(currentX_pos, currentY_pos, targetX_pos, targetY_pos)
+                print("dist: ", dist)
+                if dist > 45:
+                    print("At current target, Moving to next target: ", self.outer_instance.goal_order[self.outer_instance.current_goal])
+                    #self.outer_instance.particles_reset = True
+                    self.outer_instance.current_goal += 1
+                    # self.outer_instance.set_state(RobotState.lost)
                     return
 
             # Rotate and increment rotation counter
@@ -349,11 +359,11 @@ class State:
             if self.current_command is None:
                 if self.right > self.left:
                     self.current_command = command.Rotate(
-                        self.outer_instance.arlo, 0.5, self.outer_instance.particles
+                        self.outer_instance.arlo, 0.4, self.outer_instance.particles
                     )
                 else:
                     self.current_command = command.Rotate(
-                        self.outer_instance.arlo, -0.5, self.outer_instance.particles
+                        self.outer_instance.arlo, -0.3, self.outer_instance.particles
                     )
             elif self.current_command.finished:
                 self.outer_instance.set_state(RobotState.lost)
