@@ -1,13 +1,13 @@
+import itertools
 import os
 import time
 from abc import ABC
 
 import numpy as np
 
+import math_utils
 from constants import Constants
 from particle import Particle, ParticlesWrapper
-import math_utils
-import itertools
 
 if Constants.World.running_on_arlo:
     import os
@@ -136,7 +136,7 @@ class Straight(Command):
         super().__init__(robot, particles)
 
         self.mov_dirs = (1, 1)
-        self.power = 55
+        self.power = 32
 
         if distance < 0:
             self.mov_dirs = (0, 0)
@@ -163,10 +163,9 @@ class Approach(Command):
         # dist, angle = math_utils.polar_diff(est_pos.getPos(), est_pos.getTheta(), landmark_pos)
         # approach command is actually an infinite list of commands
         self.sub_plan = (Straight(robot, 10, particles) for _ in itertools.count())
-        
+
         self.current_command = next(self.sub_plan)
         self.run_command()
-        
 
     def run_command(self):
         self.current_command.run_command()
@@ -177,19 +176,17 @@ class Approach(Command):
         self.avoidance_mode = self.current_command.avoidance_mode
         self.check_sensors()
 
-        _l_sonar, f_sonar, _r_sonar = self.sonars 
+        _l_sonar, f_sonar, _r_sonar = self.sonars
         if self.finished:
             return
         if f_sonar < 100:
             print("stopping in approach")
             self.finished = True
             self.robot.stop()
-            return 
+            return
         if self.current_command.finished:
             self.current_command = next(self.sub_plan)
             self.run_command()
-
-
 
 
 # testing code
@@ -202,8 +199,8 @@ if __name__ == "__main__":
         # (Wait(arlo, 5)),
         # (Straight(arlo, -100)),
         # (Rotate(arlo, -np.deg2rad(90)))
-        Approach(np.array([0,0]), arlo, ParticlesWrapper(100,Constants.World.landmarks))
-        ]
+        Approach(np.array([0, 0]), arlo, ParticlesWrapper(100, Constants.World.landmarks))
+    ]
 
     while len(queue) > 0:
         command = queue.pop(0)
